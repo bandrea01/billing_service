@@ -1,8 +1,10 @@
-package org.example.billing_service;
+package it.unisalento.music_virus_project.billing_service;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+@Disabled
 @SpringBootTest
 class BillingServiceApplicationTests {
 

@@ -1,4 +1,4 @@
-package org.example.billing_service;
+package it.unisalento.music_virus_project.billing_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
