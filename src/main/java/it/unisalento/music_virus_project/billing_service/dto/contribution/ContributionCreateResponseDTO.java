@@ -8,7 +8,7 @@ import java.time.Instant;
 
 public class ContributionCreateResponseDTO {
 
-    private String id;
+    private String contributionId;
     private String fundraisingId;
     private String fanId;
     private BigDecimal amount;
@@ -19,8 +19,8 @@ public class ContributionCreateResponseDTO {
 
     public ContributionCreateResponseDTO() {}
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getContributionId() { return contributionId; }
+    public void setContributionId(String contributionId) { this.contributionId = contributionId; }
     public String getFundraisingId() { return fundraisingId; }
     public void setFundraisingId(String eventId) { this.fundraisingId = eventId; }
     public String getFanId() { return fanId; }
