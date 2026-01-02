@@ -11,14 +11,8 @@ public class ContributionCreateRequestDTO {
     private BigDecimal amount;
     private ContributionVisibility contributionVisibility;
 
-    public ContributionCreateRequestDTO(String fundraisingId, String userId, BigDecimal amount, ContributionVisibility contributionVisibility) {
-        this.fundraisingId = fundraisingId;
-        this.userId = userId;
-        this.amount = amount;
-        this.contributionVisibility = contributionVisibility;
-    }
-
     public ContributionCreateRequestDTO() {}
+
     public String getFundraisingId() {
         return fundraisingId;
     }
