@@ -4,6 +4,7 @@ import it.unisalento.music_virus_project.billing_service.domain.enums.AccountSta
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountListResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountUpdateRequestDTO;
+import it.unisalento.music_virus_project.billing_service.dto.account.DepositRequestDTO;
 import it.unisalento.music_virus_project.billing_service.service.IAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -50,21 +51,15 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{accountId}")
+    @PatchMapping("/deposit/{userId}")
+    public ResponseEntity<AccountResponseDTO> depositToAccount(@PathVariable String userId, @RequestBody DepositRequestDTO depositRequest) {
+        var response = accountService.depositToAccount(userId, depositRequest.getAmount());
+        return ResponseEntity.ok(response);
+    }
+
+                                                               @PatchMapping("/{accountId}")
     public ResponseEntity<AccountResponseDTO> updateAccount(@PathVariable String accountId, @RequestBody AccountUpdateRequestDTO accountUpdateRequest) {
         var response = accountService.updateAccount(accountId, accountUpdateRequest);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/disable/{accountId}")
-    public ResponseEntity<AccountResponseDTO> disableAccountById(@PathVariable String accountId) {
-        var response = accountService.disableAccountById(accountId);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/disable/user/{userId}")
-    public ResponseEntity<AccountListResponseDTO> disableAccountsByUserId(@PathVariable String userId) {
-        var response = accountService.disableAccountsByUserId(userId);
         return ResponseEntity.ok(response);
     }
 

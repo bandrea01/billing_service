@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface AccountRepository extends MongoRepository<Account, String> {
+public interface IAccountRepository extends MongoRepository<Account, String> {
 
     Account findAccountByAccountId(String accountId);
     Account findAccountByUserId(String userId);

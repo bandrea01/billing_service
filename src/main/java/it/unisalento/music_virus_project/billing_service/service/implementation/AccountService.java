@@ -7,19 +7,20 @@ import it.unisalento.music_virus_project.billing_service.dto.account.AccountList
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountUpdateRequestDTO;
 import it.unisalento.music_virus_project.billing_service.exceptions.NotFoundException;
-import it.unisalento.music_virus_project.billing_service.repositories.AccountRepository;
+import it.unisalento.music_virus_project.billing_service.repositories.IAccountRepository;
 import it.unisalento.music_virus_project.billing_service.service.IAccountService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class AccountService implements IAccountService {
 
-    private final AccountRepository accountRepository;
+    private final IAccountRepository accountRepository;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(IAccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
@@ -64,6 +65,18 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
+    public AccountResponseDTO depositToAccount(String accountId, BigDecimal amount) {
+        Account account = accountRepository.findAccountByAccountId(accountId);
+        if(account == null) {
+            throw new NotFoundException("Errore: Account non trovato!");
+        }
+        account.setBalance(account.getBalance().add(amount));
+        accountRepository.save(account);
+        return mapToDTO(account);
+    }
+
+    @Override
+    @Transactional
     public AccountResponseDTO updateAccount(String accountId, AccountUpdateRequestDTO accountUpdateRequestDTO) {
         Account account = accountRepository.findAccountByAccountId(accountId);
         if(account == null) {
@@ -93,14 +106,36 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
-    public AccountListResponseDTO disableAccountsByUserId(String userId) {
+    public AccountResponseDTO disableAccountByUserId(String userId) {
         Account account = accountRepository.findAccountByUserId(userId);
         if(account == null) {
             throw new NotFoundException("Errore: Account non trovato!");
         }
         account.setStatus(AccountStatus.CLOSED);
-        accountRepository.save(account);
-        return getAccountsByStatus(AccountStatus.CLOSED);
+        account = accountRepository.save(account);
+        return mapToDTO(account);
+    }
+
+    @Override
+    public AccountResponseDTO enableAccountById(String accountId) {
+        Account account = accountRepository.findAccountByAccountId(accountId);
+        if(account == null) {
+            throw new NotFoundException("Errore: Account non trovato!");
+        }
+        account.setStatus(AccountStatus.ACTIVE);
+        account = accountRepository.save(account);
+        return mapToDTO(account);
+    }
+
+    @Override
+    public AccountResponseDTO enableAccountByUserId(String userId) {
+        Account account = accountRepository.findAccountByUserId(userId);
+        if(account == null) {
+            throw new NotFoundException("Errore: Account non trovato!");
+        }
+        account.setStatus(AccountStatus.ACTIVE);
+        account = accountRepository.save(account);
+        return mapToDTO(account);
     }
 
     //utils
