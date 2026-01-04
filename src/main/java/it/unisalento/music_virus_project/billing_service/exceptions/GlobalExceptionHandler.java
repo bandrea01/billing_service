@@ -111,4 +111,16 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
+
+    @ExceptionHandler(AlreadyExistingFeePlanException.class)
+    public ResponseEntity<ApiError> handleAlreadyExistingFeePlan(AlreadyExistingFeePlanException ex, HttpServletRequest req) {
+        ApiError body = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                Collections.emptyList()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
 }

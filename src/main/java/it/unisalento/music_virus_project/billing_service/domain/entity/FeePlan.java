@@ -1,6 +1,7 @@
 package it.unisalento.music_virus_project.billing_service.domain.entity;
 
 import it.unisalento.music_virus_project.billing_service.domain.enums.FeePeriod;
+import it.unisalento.music_virus_project.billing_service.domain.enums.FeeType;
 import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ public class FeePlan {
     @Id
     private String feePlanId;
 
+    private FeeType feeType;
     private List<Role> isApplicatedTo;
     private FeePeriod feePeriod;
     private BigDecimal amount;
@@ -26,6 +28,12 @@ public class FeePlan {
     }
     public void setFeePlanId(String feePlanId) {
         this.feePlanId = feePlanId;
+    }
+    public FeeType getFeeType() {
+        return feeType;
+    }
+    public void setFeeType(FeeType feeType) {
+        this.feeType = feeType;
     }
     public List<Role> getIsApplicatedTo() {
         return isApplicatedTo;
