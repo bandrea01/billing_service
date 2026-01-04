@@ -58,7 +58,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PatchMapping("/taxes/{feePlanId}")
+    @PatchMapping("/subscriptions/{feePlanId}")
     public ResponseEntity<SubscriptionResponseDTO> updateSubscription(@PathVariable String feePlanId, @RequestBody SubscriptionUpdateRequestDTO subscriptionUpdateRequestDTO) {
         var response = feeService.updateSubscription(feePlanId, subscriptionUpdateRequestDTO);
         return ResponseEntity.ok(response);
