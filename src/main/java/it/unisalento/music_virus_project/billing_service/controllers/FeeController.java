@@ -25,19 +25,19 @@ public class FeeController {
 
     @GetMapping("/subscriptions/artists")
     public ResponseEntity<SubscriptionListResponse> getArtistsFees() {
-        var response = feeService.getArtistFees();
+        var response = feeService.getArtistSubscription();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/subscriptions/venues")
     public ResponseEntity<SubscriptionListResponse> getVenuesFees() {
-        var response = feeService.getVenuesFees();
+        var response = feeService.getVenuesSubscription();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/subscriptions/fans")
     public ResponseEntity<SubscriptionListResponse> getFansFees() {
-        var response = feeService.getFansFees();
+        var response = feeService.getFansSubscription();
         return ResponseEntity.ok(response);
     }
 

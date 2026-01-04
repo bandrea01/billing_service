@@ -40,19 +40,19 @@ public class FeeService implements IFeeService {
     }
 
     @Override
-    public SubscriptionListResponse getArtistFees() {
+    public SubscriptionListResponse getArtistSubscription() {
         List<Subscription> fees = subscriptionRepository.findSubscriptionByIsApplicatedToContains(Role.ARTIST);
         return mapSubscriptionsToDTOlist(fees);
     }
 
     @Override
-    public SubscriptionListResponse getVenuesFees() {
+    public SubscriptionListResponse getVenuesSubscription() {
         List<Subscription> fees = subscriptionRepository.findSubscriptionByIsApplicatedToContains(Role.VENUE);
         return mapSubscriptionsToDTOlist(fees);
     }
 
     @Override
-    public SubscriptionListResponse getFansFees() {
+    public SubscriptionListResponse getFansSubscription() {
         List<Subscription> fees = subscriptionRepository.findSubscriptionByIsApplicatedToContains(Role.FAN);
         return mapSubscriptionsToDTOlist(fees);
     }
@@ -62,7 +62,7 @@ public class FeeService implements IFeeService {
     public SubscriptionResponseDTO createSubscription(SubscriptionCreateRequestDTO subscriptionCreateRequestDTO) {
         // Any user type should have only one fee plan
         List<Subscription> existingSubscription = subscriptionRepository.findSubscriptionByIsApplicatedToContains(subscriptionCreateRequestDTO.getIsApplicatedTo().iterator().next());
-        if (existingSubscription != null) {
+        if (!existingSubscription.isEmpty()) {
             throw new AlreadyExistingFeePlanException("Errore: esiste già un piano tariffario per uno dei ruoli specificati.");
         }
 

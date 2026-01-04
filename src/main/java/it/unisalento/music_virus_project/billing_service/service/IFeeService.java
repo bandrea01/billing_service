@@ -4,9 +4,9 @@ import it.unisalento.music_virus_project.billing_service.dto.fee.*;
 
 public interface IFeeService {
     SubscriptionListResponse getSubscriptionList();
-    SubscriptionListResponse getArtistFees();
-    SubscriptionListResponse getVenuesFees();
-    SubscriptionListResponse getFansFees();
+    SubscriptionListResponse getArtistSubscription();
+    SubscriptionListResponse getVenuesSubscription();
+    SubscriptionListResponse getFansSubscription();
     SubscriptionResponseDTO createSubscription(SubscriptionCreateRequestDTO subscriptionCreateRequestDTO);
     SubscriptionResponseDTO updateSubscription(String feePlanId, SubscriptionUpdateRequestDTO subscriptionUpdateRequestDTO);
 
