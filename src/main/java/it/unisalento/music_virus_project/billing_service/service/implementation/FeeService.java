@@ -82,7 +82,7 @@ public class FeeService implements IFeeService {
     public TaxResponseDTO createTax(TaxCreateRequestDTO taxCreateRequestDTO) {
         Tax tax = new Tax();
         tax.setTaxName(taxCreateRequestDTO.getTaxName());
-        tax.setPercentageOnTotal(taxCreateRequestDTO.getEventTaxPercentage());
+        tax.setPercentageOnTotal(taxCreateRequestDTO.getPercentageOnTotal());
         tax.setActiveSince(taxCreateRequestDTO.getActiveSince());
 
         tax = taxRepository.save(tax);
@@ -120,8 +120,8 @@ public class FeeService implements IFeeService {
         if (eventTax == null) {
             throw new NotFoundException("Errore: tassazione non trovata.");
         }
-        if (taxUpdateRequestDTO.getEventTaxPercentage() != null) {
-            eventTax.setPercentageOnTotal(taxUpdateRequestDTO.getEventTaxPercentage());
+        if (taxUpdateRequestDTO.getPercentageOnTotal() != null) {
+            eventTax.setPercentageOnTotal(taxUpdateRequestDTO.getPercentageOnTotal());
         }
         if(taxUpdateRequestDTO.getTaxName() != null) {
             Tax existingTax = taxRepository.findTaxByTaxName(taxUpdateRequestDTO.getTaxName());
@@ -158,7 +158,7 @@ public class FeeService implements IFeeService {
         dto.setFeeType(FeeType.TAX);
         dto.setFeePlanId(eventTax.getFeePlanId());
         dto.setTaxName(eventTax.getTaxName().toString());
-        dto.setEventTaxPercentage(eventTax.getPercentageOnTotal());
+        dto.setPercentageOnTotal(eventTax.getPercentageOnTotal());
         dto.setActiveSince(eventTax.getActiveSince());
         return dto;
     }

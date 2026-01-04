@@ -8,7 +8,7 @@ public class TaxResponseDTO {
     private FeeType feeType;
     private String feePlanId;
     private String taxName;
-    private double eventTaxPercentage;
+    private double percentageOnTotal;
     private Instant activeSince;
 
     public TaxResponseDTO(){}
@@ -31,11 +31,11 @@ public class TaxResponseDTO {
     public void setTaxName(String taxName) {
         this.taxName = taxName;
     }
-    public double getEventTaxPercentage() {
-        return eventTaxPercentage;
+    public double getPercentageOnTotal() {
+        return percentageOnTotal;
     }
-    public void setEventTaxPercentage(double eventTaxPercentage) {
-        this.eventTaxPercentage = eventTaxPercentage;
+    public void setPercentageOnTotal(double percentageOnTotal) {
+        this.percentageOnTotal = percentageOnTotal;
     }
     public Instant getActiveSince() {
         return activeSince;

@@ -6,8 +6,8 @@ import java.util.List;
 public class TaxListResponseDTO {
     private List<TaxResponseDTO> taxes;
 
-    public TaxListResponseDTO(List<TaxResponseDTO> fees) {
-        this.taxes = fees;
+    public TaxListResponseDTO(List<TaxResponseDTO> taxes) {
+        this.taxes = taxes;
     }
     public TaxListResponseDTO() {
         this.taxes = new ArrayList<>();

@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public class TaxCreateRequestDTO {
     private TaxEnum taxName;
-    private double eventTaxPercentage;
+    private double percentageOnTotal;
     private Instant activeSince;
 
     public TaxCreateRequestDTO() {}
@@ -17,11 +17,11 @@ public class TaxCreateRequestDTO {
     public void setTaxName(TaxEnum taxName) {
         this.taxName = taxName;
     }
-    public double getEventTaxPercentage() {
-        return eventTaxPercentage;
+    public double getPercentageOnTotal() {
+        return percentageOnTotal;
     }
-    public void setEventTaxPercentage(double eventTaxPercentage) {
-        this.eventTaxPercentage = eventTaxPercentage;
+    public void setPercentageOnTotal(double percentageOnTotal) {
+        this.percentageOnTotal = percentageOnTotal;
     }
     public Instant getActiveSince() {return activeSince;}
     public void setActiveSince(Instant activeSince) {this.activeSince = activeSince;}
