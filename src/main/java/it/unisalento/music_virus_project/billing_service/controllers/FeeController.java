@@ -1,9 +1,6 @@
 package it.unisalento.music_virus_project.billing_service.controllers;
 
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeCreateRequestDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeListResponseDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeResponseDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeUpdateRequestDTO;
+import it.unisalento.music_virus_project.billing_service.dto.fee.*;
 import it.unisalento.music_virus_project.billing_service.service.IFeeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,39 +17,33 @@ public class FeeController {
         this.feeService = feeService;
     }
 
-    @GetMapping()
-    public ResponseEntity<FeeListResponseDTO> getFeesList() {
-        var response = feeService.getFeesList();
+    @GetMapping("/subscriptions")
+    public ResponseEntity<SubscriptionListResponse> getSubscriptionList() {
+        var response = feeService.getSubscriptionList();
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/artists")
-    public ResponseEntity<FeeResponseDTO> getArtistsFees() {
+    @GetMapping("/subscriptions/artists")
+    public ResponseEntity<SubscriptionListResponse> getArtistsFees() {
         var response = feeService.getArtistFees();
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/venues")
-    public ResponseEntity<FeeResponseDTO> getVenuesFees() {
+    @GetMapping("/subscriptions/venues")
+    public ResponseEntity<SubscriptionListResponse> getVenuesFees() {
         var response = feeService.getVenuesFees();
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/fans")
-    public ResponseEntity<FeeResponseDTO> getFansFees() {
+    @GetMapping("/subscriptions/fans")
+    public ResponseEntity<SubscriptionListResponse> getFansFees() {
         var response = feeService.getFansFees();
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping()
-    public ResponseEntity<FeeResponseDTO> createFee(@RequestBody FeeCreateRequestDTO feeCreateRequestDTO) {
-        var response = feeService.createFee(feeCreateRequestDTO);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{feePlanId}")
-    public ResponseEntity<FeeResponseDTO> updateFee(@PathVariable String feePlanId, @RequestBody FeeUpdateRequestDTO feeUpdateRequestDTO) {
-        var response = feeService.updateFee(feePlanId, feeUpdateRequestDTO);
+    @GetMapping("/taxes")
+    public ResponseEntity<TaxListResponseDTO> getTaxList() {
+        var response = feeService.getTaxList();
         return ResponseEntity.ok(response);
     }
 

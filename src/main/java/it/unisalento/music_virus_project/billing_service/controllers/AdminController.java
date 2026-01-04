@@ -1,11 +1,7 @@
 package it.unisalento.music_virus_project.billing_service.controllers;
 
-import it.unisalento.music_virus_project.billing_service.domain.entity.Account;
-import it.unisalento.music_virus_project.billing_service.dto.account.AccountListResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountResponseDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeCreateRequestDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeResponseDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeUpdateRequestDTO;
+import it.unisalento.music_virus_project.billing_service.dto.fee.*;
 import it.unisalento.music_virus_project.billing_service.service.IAccountService;
 import it.unisalento.music_virus_project.billing_service.service.IFeeService;
 import org.springframework.http.ResponseEntity;
@@ -55,16 +51,30 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/fee")
-    public ResponseEntity<FeeResponseDTO> createFee(@RequestBody FeeCreateRequestDTO feeCreateRequestDTO) {
-        var response = feeService.createFee(feeCreateRequestDTO);
+    @PostMapping("/subscriptions")
+    public ResponseEntity<SubscriptionResponseDTO> createSubscription(@RequestBody SubscriptionCreateRequestDTO subscriptionCreateRequestDTO) {
+        var response = feeService.createSubscription(subscriptionCreateRequestDTO);
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PatchMapping("/fee/{feePlanId}")
-    public ResponseEntity<FeeResponseDTO> updateFee(@PathVariable String feePlanId, @RequestBody FeeUpdateRequestDTO feeUpdateRequestDTO) {
-        var response = feeService.updateFee(feePlanId, feeUpdateRequestDTO);
+    @PatchMapping("/taxes/{feePlanId}")
+    public ResponseEntity<SubscriptionResponseDTO> updateSubscription(@PathVariable String feePlanId, @RequestBody SubscriptionUpdateRequestDTO subscriptionUpdateRequestDTO) {
+        var response = feeService.updateSubscription(feePlanId, subscriptionUpdateRequestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/taxes")
+    public ResponseEntity<TaxResponseDTO> createTax(@RequestBody TaxCreateRequestDTO taxCreateRequestDTO) {
+        var response = feeService.createTax(taxCreateRequestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PatchMapping("/taxes/{feePlanId}")
+    public ResponseEntity<TaxResponseDTO> updateTax(@PathVariable String feePlanId, @RequestBody TaxUpdateRequestDTO taxUpdateRequestDTO) {
+        var response = feeService.updateTax(feePlanId, taxUpdateRequestDTO);
         return ResponseEntity.ok(response);
     }
 

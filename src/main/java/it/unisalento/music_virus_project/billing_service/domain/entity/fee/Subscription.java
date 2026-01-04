@@ -1,35 +1,22 @@
-package it.unisalento.music_virus_project.billing_service.dto.fee;
+package it.unisalento.music_virus_project.billing_service.domain.entity.fee;
 
 import it.unisalento.music_virus_project.billing_service.domain.entity.Role;
 import it.unisalento.music_virus_project.billing_service.domain.enums.FeePeriod;
 import it.unisalento.music_virus_project.billing_service.domain.enums.FeeType;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 
-public class FeeResponseDTO {
-    private FeeType feeType;
-    private String feePlanId;
+public class Subscription extends FeePlan{
     private List<Role> isApplicatedTo;
     private FeePeriod feePeriod;
     private BigDecimal amount;
-    private Instant activeSince;
 
-    public FeeResponseDTO(){}
+    public Subscription() {
+        super();
+        this.setFeeType(FeeType.SUBSCRIPTION);
+    }
 
-    public FeeType getFeeType() {
-        return feeType;
-    }
-    public void setFeeType(FeeType feeType) {
-        this.feeType = feeType;
-    }
-    public String getFeePlanId() {
-        return feePlanId;
-    }
-    public void setFeePlanId(String feePlanId) {
-        this.feePlanId = feePlanId;
-    }
     public List<Role> getIsApplicatedTo() {
         return isApplicatedTo;
     }
@@ -47,11 +34,5 @@ public class FeeResponseDTO {
     }
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
-    }
-    public Instant getActiveSince() {
-        return activeSince;
-    }
-    public void setActiveSince(Instant activeSince) {
-        this.activeSince = activeSince;
     }
 }

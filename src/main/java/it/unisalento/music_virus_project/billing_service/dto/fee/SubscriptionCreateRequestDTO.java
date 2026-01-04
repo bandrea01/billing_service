@@ -7,13 +7,13 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-public class FeeUpdateRequestDTO {
+public class SubscriptionCreateRequestDTO {
     private List<Role> isApplicatedTo;
     private FeePeriod feePeriod;
     private BigDecimal amount;
     private Instant activeSince;
 
-    public FeeUpdateRequestDTO() {}
+    public SubscriptionCreateRequestDTO() {}
 
     public List<Role> getIsApplicatedTo() {
         return isApplicatedTo;

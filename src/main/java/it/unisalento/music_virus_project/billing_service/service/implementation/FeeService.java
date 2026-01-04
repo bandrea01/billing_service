@@ -1,19 +1,17 @@
 package it.unisalento.music_virus_project.billing_service.service.implementation;
 
-import it.unisalento.music_virus_project.billing_service.domain.entity.FeePlan;
+import it.unisalento.music_virus_project.billing_service.domain.entity.fee.Tax;
 import it.unisalento.music_virus_project.billing_service.domain.entity.Role;
+import it.unisalento.music_virus_project.billing_service.domain.entity.fee.Subscription;
 import it.unisalento.music_virus_project.billing_service.domain.enums.FeeType;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeCreateRequestDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeListResponseDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeResponseDTO;
-import it.unisalento.music_virus_project.billing_service.dto.fee.FeeUpdateRequestDTO;
+import it.unisalento.music_virus_project.billing_service.dto.fee.*;
 import it.unisalento.music_virus_project.billing_service.exceptions.AlreadyExistingFeePlanException;
 import it.unisalento.music_virus_project.billing_service.exceptions.NotFoundException;
-import it.unisalento.music_virus_project.billing_service.repositories.IFeeRepository;
+import it.unisalento.music_virus_project.billing_service.repositories.ITaxRepository;
+import it.unisalento.music_virus_project.billing_service.repositories.ISubscriptionRepository;
 import it.unisalento.music_virus_project.billing_service.service.IFeeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,107 +19,168 @@ import java.util.List;
 @Service
 public class FeeService implements IFeeService {
 
-    private final IFeeRepository feeRepository;
+    private final ISubscriptionRepository subscriptionRepository;
+    private final ITaxRepository taxRepository;
 
-    public FeeService(IFeeRepository feeRepository) {
-        this.feeRepository = feeRepository;
+    public FeeService(ISubscriptionRepository feeRepository, ITaxRepository taxRepository) {
+        this.subscriptionRepository = feeRepository;
+        this.taxRepository = taxRepository;
     }
 
     @Override
-    public FeeListResponseDTO getFeesList() {
-        List<FeePlan> fees = feeRepository.findAll();
-        return mapToDTOList(fees);
-    }
-
-    @GetMapping
-    public FeeResponseDTO getEventTaxFee() {
-        FeePlan fee = feeRepository.findFeeByFeeType(FeeType.EVENT_TAX);
-        return mapToDTO(fee);
+    public SubscriptionListResponse getSubscriptionList() {
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
+        return mapSubscriptionsToDTOlist(subscriptions);
     }
 
     @Override
-    public FeeResponseDTO getArtistFees() {
-        FeePlan fee = feeRepository.findFeePlanByIsApplicatedToContains(Role.ARTIST);
-        return mapToDTO(fee);
+    public TaxListResponseDTO getTaxList() {
+        List<Tax> fees = taxRepository.findAll();
+        return mapTaxesToDTOlist(fees);
     }
 
     @Override
-    public FeeResponseDTO getVenuesFees() {
-        FeePlan fee = feeRepository.findFeePlanByIsApplicatedToContains(Role.VENUE);
-        return mapToDTO(fee);
+    public SubscriptionListResponse getArtistFees() {
+        List<Subscription> fees = subscriptionRepository.findSubscriptionByIsApplicatedToContains(Role.ARTIST);
+        return mapSubscriptionsToDTOlist(fees);
     }
 
     @Override
-    public FeeResponseDTO getFansFees() {
-        FeePlan fee = feeRepository.findFeePlanByIsApplicatedToContains(Role.FAN);
-        return mapToDTO(fee);
+    public SubscriptionListResponse getVenuesFees() {
+        List<Subscription> fees = subscriptionRepository.findSubscriptionByIsApplicatedToContains(Role.VENUE);
+        return mapSubscriptionsToDTOlist(fees);
+    }
+
+    @Override
+    public SubscriptionListResponse getFansFees() {
+        List<Subscription> fees = subscriptionRepository.findSubscriptionByIsApplicatedToContains(Role.FAN);
+        return mapSubscriptionsToDTOlist(fees);
     }
 
     @Override
     @Transactional
-    public FeeResponseDTO createFee(FeeCreateRequestDTO feeCreateRequestDTO) {
+    public SubscriptionResponseDTO createSubscription(SubscriptionCreateRequestDTO subscriptionCreateRequestDTO) {
         // Any user type should have only one fee plan
-        FeePlan existingFee = feeRepository.findFeePlanByIsApplicatedToContains(feeCreateRequestDTO.getIsApplicatedTo().iterator().next());
-        if (existingFee != null) {
+        List<Subscription> existingSubscription = subscriptionRepository.findSubscriptionByIsApplicatedToContains(subscriptionCreateRequestDTO.getIsApplicatedTo().iterator().next());
+        if (existingSubscription != null) {
             throw new AlreadyExistingFeePlanException("Errore: esiste già un piano tariffario per uno dei ruoli specificati.");
         }
 
-        FeePlan fee = new FeePlan();
-        fee.setFeeType(feeCreateRequestDTO.getFeeType());
-        fee.setIsApplicatedTo(new ArrayList<>(feeCreateRequestDTO.getIsApplicatedTo()));
-        fee.setAmount(feeCreateRequestDTO.getAmount());
-        fee.setFeePeriod(feeCreateRequestDTO.getFeePeriod());
-        fee.setActiveSince(feeCreateRequestDTO.getActiveSince());
+        Subscription subscription = new Subscription();
+        subscription.setIsApplicatedTo(new ArrayList<>(subscriptionCreateRequestDTO.getIsApplicatedTo()));
+        subscription.setAmount(subscriptionCreateRequestDTO.getAmount());
+        subscription.setFeePeriod(subscriptionCreateRequestDTO.getFeePeriod());
+        subscription.setActiveSince(subscriptionCreateRequestDTO.getActiveSince());
 
-        fee = feeRepository.save(fee);
+        subscription = subscriptionRepository.save(subscription);
 
-        return mapToDTO(fee);
+        return mapToDTO(subscription);
     }
 
     @Override
     @Transactional
-    public FeeResponseDTO updateFee(String feePlanId, FeeUpdateRequestDTO feeUpdateRequestDTO) {
-        FeePlan fee = feeRepository.findFeeByFeePlanId(feePlanId);
-        if (fee == null) {
+    public TaxResponseDTO createTax(TaxCreateRequestDTO taxCreateRequestDTO) {
+        Tax tax = new Tax();
+        tax.setTaxName(taxCreateRequestDTO.getTaxName());
+        tax.setPercentageOnTotal(taxCreateRequestDTO.getEventTaxPercentage());
+        tax.setActiveSince(taxCreateRequestDTO.getActiveSince());
+
+        tax = taxRepository.save(tax);
+
+        return mapToDTO(tax);
+    }
+
+    @Override
+    @Transactional
+    public SubscriptionResponseDTO updateSubscription(String feePlanId, SubscriptionUpdateRequestDTO subscriptionUpdateRequestDTO) {
+        Subscription subscription = subscriptionRepository.findSubscriptionByFeePlanId(feePlanId);
+        if (subscription == null) {
             throw new NotFoundException("Errore: piano tariffario non trovato.");
         }
-        if (feeUpdateRequestDTO.getIsApplicatedTo() != null) {
-            fee.setIsApplicatedTo(new ArrayList<>(feeUpdateRequestDTO.getIsApplicatedTo()));
+        if (subscriptionUpdateRequestDTO.getIsApplicatedTo() != null) {
+            subscription.setIsApplicatedTo(new ArrayList<>(subscriptionUpdateRequestDTO.getIsApplicatedTo()));
         }
-        if (feeUpdateRequestDTO.getAmount() != null) {
-            fee.setAmount(feeUpdateRequestDTO.getAmount());
+        if (subscriptionUpdateRequestDTO.getAmount() != null) {
+            subscription.setAmount(subscriptionUpdateRequestDTO.getAmount());
         }
-        if (feeUpdateRequestDTO.getFeePeriod() != null) {
-            fee.setFeePeriod(feeUpdateRequestDTO.getFeePeriod());
+        if (subscriptionUpdateRequestDTO.getFeePeriod() != null) {
+            subscription.setFeePeriod(subscriptionUpdateRequestDTO.getFeePeriod());
         }
-        if (feeUpdateRequestDTO.getActiveSince() != null) {
-            fee.setActiveSince(feeUpdateRequestDTO.getActiveSince());
+        if (subscriptionUpdateRequestDTO.getActiveSince() != null) {
+            subscription.setActiveSince(subscriptionUpdateRequestDTO.getActiveSince());
         }
-        feeRepository.save(fee);
-        return mapToDTO(fee);
+        subscriptionRepository.save(subscription);
+        return mapToDTO(subscription);
+    }
+
+    @Override
+    @Transactional
+    public TaxResponseDTO updateTax(String feePlanId, TaxUpdateRequestDTO taxUpdateRequestDTO) {
+        Tax eventTax = taxRepository.findTaxByFeePlanId(feePlanId);
+        if (eventTax == null) {
+            throw new NotFoundException("Errore: tassazione non trovata.");
+        }
+        if (taxUpdateRequestDTO.getEventTaxPercentage() != null) {
+            eventTax.setPercentageOnTotal(taxUpdateRequestDTO.getEventTaxPercentage());
+        }
+        if(taxUpdateRequestDTO.getTaxName() != null) {
+            Tax existingTax = taxRepository.findTaxByTaxName(taxUpdateRequestDTO.getTaxName());
+            if (existingTax != null && !existingTax.getFeePlanId().equals(feePlanId)) {
+                throw new AlreadyExistingFeePlanException("Errore: esiste già una tassazione con questo nome");
+            }
+            eventTax.setTaxName(taxUpdateRequestDTO.getTaxName());
+        }
+        taxRepository.save(eventTax);
+        return mapToDTO(eventTax);
     }
 
     //utils
-    private FeeResponseDTO mapToDTO(FeePlan feePlan) {
-        if (feePlan == null) {
-            return null;
-        }
-        FeeResponseDTO dto = new FeeResponseDTO();
-        dto.setFeeType(feePlan.getFeeType());
-        dto.setFeePlanId(feePlan.getFeePlanId());
-        dto.setIsApplicatedTo(new ArrayList<>(feePlan.getIsApplicatedTo()));
-        dto.setAmount(feePlan.getAmount());
-        dto.setFeePeriod(feePlan.getFeePeriod());
-        dto.setActiveSince(feePlan.getActiveSince());
+    private SubscriptionResponseDTO mapToDTO(Subscription subscription) {
+        if (subscription == null) return null;
+
+        SubscriptionResponseDTO dto = new SubscriptionResponseDTO();
+        dto.setFeeType(FeeType.SUBSCRIPTION);
+        dto.setFeePlanId(subscription.getFeePlanId());
+        dto.setIsApplicatedTo(
+                subscription.getIsApplicatedTo() == null
+                        ? new ArrayList<>()
+                        : new ArrayList<>(subscription.getIsApplicatedTo())
+        );
+        dto.setAmount(subscription.getAmount());
+        dto.setFeePeriod(subscription.getFeePeriod());
+        dto.setActiveSince(subscription.getActiveSince());
         return dto;
     }
+    private TaxResponseDTO mapToDTO(Tax eventTax) {
+        if (eventTax == null) return null;
 
-    private FeeListResponseDTO mapToDTOList(Iterable<FeePlan> feePlans) {
-        FeeListResponseDTO dtoList = new FeeListResponseDTO();
-        for (FeePlan feePlan : feePlans) {
-            dtoList.getFees().add(mapToDTO(feePlan));
+        TaxResponseDTO dto = new TaxResponseDTO();
+        dto.setFeeType(FeeType.TAX);
+        dto.setFeePlanId(eventTax.getFeePlanId());
+        dto.setTaxName(eventTax.getTaxName().toString());
+        dto.setEventTaxPercentage(eventTax.getPercentageOnTotal());
+        dto.setActiveSince(eventTax.getActiveSince());
+        return dto;
+    }
+    private SubscriptionListResponse mapSubscriptionsToDTOlist(List<Subscription> subscriptions) {
+        SubscriptionListResponse dtoList = new SubscriptionListResponse();
+        List<SubscriptionResponseDTO> dtoItems = new ArrayList<>();
+        for (Subscription subscription : subscriptions) {
+            dtoItems.add(mapToDTO(subscription));
         }
+        dtoList.setSubscriptions(dtoItems);
         return dtoList;
     }
+    private TaxListResponseDTO mapTaxesToDTOlist(List<Tax> eventTaxes) {
+        TaxListResponseDTO dtoList = new TaxListResponseDTO();
+        List<TaxResponseDTO> dtoItems = new ArrayList<>();
+        for (Tax eventTax : eventTaxes) {
+            dtoItems.add(mapToDTO(eventTax));
+        }
+        dtoList.setTaxes(dtoItems);
+        return dtoList;
+    }
+
+
 
 }
