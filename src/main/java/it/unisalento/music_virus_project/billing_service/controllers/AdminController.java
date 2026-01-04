@@ -65,6 +65,13 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/subscriptions/{feePlanId}")
+    public ResponseEntity<SubscriptionResponseDTO> deleteSubscription(@PathVariable String feePlanId) {
+        var response = feeService.deleteSubscription(feePlanId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/taxes")
     public ResponseEntity<TaxResponseDTO> createTax(@RequestBody TaxCreateRequestDTO taxCreateRequestDTO) {
         var response = feeService.createTax(taxCreateRequestDTO);
@@ -75,6 +82,13 @@ public class AdminController {
     @PatchMapping("/taxes/{feePlanId}")
     public ResponseEntity<TaxResponseDTO> updateTax(@PathVariable String feePlanId, @RequestBody TaxUpdateRequestDTO taxUpdateRequestDTO) {
         var response = feeService.updateTax(feePlanId, taxUpdateRequestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PatchMapping("/taxes/{feePlanId}")
+    public ResponseEntity<TaxResponseDTO> deleteTax(@PathVariable String feePlanId) {
+        var response = feeService.deleteTax(feePlanId);
         return ResponseEntity.ok(response);
     }
 

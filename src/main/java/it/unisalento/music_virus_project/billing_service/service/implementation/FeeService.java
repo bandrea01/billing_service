@@ -115,6 +115,17 @@ public class FeeService implements IFeeService {
 
     @Override
     @Transactional
+    public SubscriptionResponseDTO deleteSubscription(String feePlanId) {
+        Subscription subscription = subscriptionRepository.findSubscriptionByFeePlanId(feePlanId);
+        if (subscription == null) {
+            throw new NotFoundException("Errore: piano tariffario non trovato");
+        }
+        subscriptionRepository.delete(subscription);
+        return mapToDTO(subscription);
+    }
+
+    @Override
+    @Transactional
     public TaxResponseDTO updateTax(String feePlanId, TaxUpdateRequestDTO taxUpdateRequestDTO) {
         Tax eventTax = taxRepository.findTaxByFeePlanId(feePlanId);
         if (eventTax == null) {
@@ -131,6 +142,17 @@ public class FeeService implements IFeeService {
             eventTax.setTaxName(taxUpdateRequestDTO.getTaxName());
         }
         taxRepository.save(eventTax);
+        return mapToDTO(eventTax);
+    }
+
+    @Override
+    @Transactional
+    public TaxResponseDTO deleteTax(String feePlanId) {
+        Tax eventTax = taxRepository.findTaxByFeePlanId(feePlanId);
+        if (eventTax == null) {
+            throw new NotFoundException("Errore: tassazione non trovata");
+        }
+        taxRepository.delete(eventTax);
         return mapToDTO(eventTax);
     }
 
