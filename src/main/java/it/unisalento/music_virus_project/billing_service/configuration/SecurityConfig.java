@@ -40,9 +40,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/api/billing/fee/artists").permitAll()
-                        .requestMatchers("/api/billing/fee/venues").permitAll()
-                        .requestMatchers("/api/billing/fee/fans").permitAll()
+                        .requestMatchers("/api/billing/fee/subscriptions/artists").permitAll()
+                        .requestMatchers("/api/billing/fee/subscriptions/venues").permitAll()
+                        .requestMatchers("/api/billing/fee/subscriptions/fans").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
