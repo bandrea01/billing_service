@@ -86,7 +86,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PatchMapping("/taxes/{feePlanId}")
+    @DeleteMapping("/taxes/{feePlanId}")
     public ResponseEntity<TaxResponseDTO> deleteTax(@PathVariable String feePlanId) {
         var response = feeService.deleteTax(feePlanId);
         return ResponseEntity.ok(response);

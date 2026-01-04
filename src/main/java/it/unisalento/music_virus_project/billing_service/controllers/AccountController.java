@@ -51,13 +51,13 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/deposit/{userId}")
-    public ResponseEntity<AccountResponseDTO> depositToAccount(@PathVariable String userId, @RequestBody DepositRequestDTO depositRequest) {
-        var response = accountService.depositToAccount(userId, depositRequest.getAmount());
+    @PatchMapping("/deposit/{accountId}")
+    public ResponseEntity<AccountResponseDTO> depositByAccountId(@PathVariable String accountId, @RequestBody DepositRequestDTO depositRequest) {
+        var response = accountService.depositByAccountId(accountId, depositRequest.getAmount());
         return ResponseEntity.ok(response);
     }
 
-                                                               @PatchMapping("/{accountId}")
+    @PatchMapping("/{accountId}")
     public ResponseEntity<AccountResponseDTO> updateAccount(@PathVariable String accountId, @RequestBody AccountUpdateRequestDTO accountUpdateRequest) {
         var response = accountService.updateAccount(accountId, accountUpdateRequest);
         return ResponseEntity.ok(response);

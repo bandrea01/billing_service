@@ -65,7 +65,7 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
-    public AccountResponseDTO depositToAccount(String accountId, BigDecimal amount) {
+    public AccountResponseDTO depositByAccountId(String accountId, BigDecimal amount) {
         Account account = accountRepository.findAccountByAccountId(accountId);
         if(account == null) {
             throw new NotFoundException("Errore: Account non trovato!");

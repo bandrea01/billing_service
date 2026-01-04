@@ -1,9 +1,6 @@
 package it.unisalento.music_virus_project.billing_service.dto.account;
 
 import it.unisalento.music_virus_project.billing_service.domain.enums.AccountStatus;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.math.BigDecimal;
 import java.time.Instant;
