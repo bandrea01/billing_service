@@ -1,12 +1,12 @@
 package it.unisalento.music_virus_project.billing_service.controllers;
 
-import it.unisalento.music_virus_project.billing_service.domain.enums.AccountStatus;
-import it.unisalento.music_virus_project.billing_service.dto.account.AccountListResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountUpdateRequestDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.DepositRequestDTO;
 import it.unisalento.music_virus_project.billing_service.service.IAccountService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,45 +21,24 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping
-    public ResponseEntity<AccountListResponseDTO> getAllAccounts() {
-        var response = accountService.getAllAccounts();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{accountId}")
-    public ResponseEntity<AccountResponseDTO> getAccountById(@PathVariable String accountId) {
-        var response = accountService.getAccountById(accountId);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<AccountResponseDTO> getAccountByUserId(@PathVariable String userId) {
+    @GetMapping()
+    public ResponseEntity<AccountResponseDTO> getPersonalAccount(@AuthenticationPrincipal Jwt principal) {
+        String userId = principal.getClaimAsString("userId");
         var response = accountService.getAccountByUserId(userId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(params = "status")
-    public ResponseEntity<AccountListResponseDTO> getAccountsByStatus(@RequestParam String status) {
-        var response = accountService.getAccountsByStatus(Enum.valueOf(AccountStatus.class, status));
+    @PatchMapping()
+    public ResponseEntity<AccountResponseDTO> updateAccount(@AuthenticationPrincipal Jwt principal, @RequestBody AccountUpdateRequestDTO accountUpdateRequest) {
+        String userId = principal.getClaimAsString("userId");
+        var response = accountService.updateAccount(userId, accountUpdateRequest);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/user/{userId}")
-    public ResponseEntity<AccountResponseDTO> createAccount(@PathVariable String userId) {
-        var response = accountService.createAccount(userId);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/deposit/{accountId}")
-    public ResponseEntity<AccountResponseDTO> depositByAccountId(@PathVariable String accountId, @RequestBody DepositRequestDTO depositRequest) {
-        var response = accountService.depositByAccountId(accountId, depositRequest.getAmount());
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{accountId}")
-    public ResponseEntity<AccountResponseDTO> updateAccount(@PathVariable String accountId, @RequestBody AccountUpdateRequestDTO accountUpdateRequest) {
-        var response = accountService.updateAccount(accountId, accountUpdateRequest);
+    @PatchMapping("/deposit")
+    public ResponseEntity<AccountResponseDTO> depositByAccountId(@AuthenticationPrincipal Jwt principal, @RequestBody DepositRequestDTO depositRequest) {
+        String userId = principal.getClaimAsString("userId");
+        var response = accountService.depositByUserId(userId, depositRequest.getAmount());
         return ResponseEntity.ok(response);
     }
 

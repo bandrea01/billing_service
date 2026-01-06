@@ -33,6 +33,9 @@ public class AccountService implements IAccountService {
 
     @Override
     public AccountResponseDTO getAccountById(String accountId) {
+        //Only the owner can get his account details
+
+
         Account account = accountRepository.findAccountByAccountId(accountId);
         if (account == null) {
             throw new NotFoundException("Errore: Account non trovato!");
@@ -65,8 +68,8 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
-    public AccountResponseDTO depositByAccountId(String accountId, BigDecimal amount) {
-        Account account = accountRepository.findAccountByAccountId(accountId);
+    public AccountResponseDTO depositByUserId(String userId, BigDecimal amount) {
+        Account account = accountRepository.findAccountByUserId(userId);
         if(account == null) {
             throw new NotFoundException("Errore: Account non trovato!");
         }
@@ -77,8 +80,8 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
-    public AccountResponseDTO updateAccount(String accountId, AccountUpdateRequestDTO accountUpdateRequestDTO) {
-        Account account = accountRepository.findAccountByAccountId(accountId);
+    public AccountResponseDTO updateAccount(String userId, AccountUpdateRequestDTO accountUpdateRequestDTO) {
+        Account account = accountRepository.findAccountByUserId(userId);
         if(account == null) {
             throw new NotFoundException("Errore: Account non trovato!");
         }

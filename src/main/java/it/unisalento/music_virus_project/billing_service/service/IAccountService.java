@@ -14,8 +14,8 @@ public interface IAccountService {
     AccountResponseDTO getAccountByUserId(String userId);
     AccountListResponseDTO getAccountsByStatus(AccountStatus status);
     AccountResponseDTO createAccount(String userId);
-    AccountResponseDTO depositByAccountId(String accountId, BigDecimal amount);
-    AccountResponseDTO updateAccount(String accountId, AccountUpdateRequestDTO accountUpdateRequestDTO);
+    AccountResponseDTO depositByUserId(String accountId, BigDecimal amount);
+    AccountResponseDTO updateAccount(String userId, AccountUpdateRequestDTO accountUpdateRequestDTO);
     AccountResponseDTO disableAccountById(String accountId);
     AccountResponseDTO disableAccountByUserId(String userId);
     AccountResponseDTO enableAccountById(String accountId);
