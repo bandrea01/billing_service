@@ -14,9 +14,9 @@ public class Refund {
     @Indexed
     private String contributionId;
     @Indexed
-    private String userId;
+    private String userId; //user who received the refund
     @Indexed
-    private String accountId;
+    private String accountId; //account where the refund was sent
     @Indexed
     private String fundraisingId;
 

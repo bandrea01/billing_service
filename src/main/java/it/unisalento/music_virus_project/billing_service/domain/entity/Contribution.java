@@ -15,7 +15,7 @@ public class Contribution {
     private String contributionId;
 
     @Indexed
-    private String userId;
+    private String userId; // user who made the contribution
     @Indexed
     private String fundraisingId;
 
