@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 public class ContributionCreateRequestDTO {
 
     private String fundraisingId;
+    private String artistId;
     private String userId;
     private BigDecimal amount;
     private ContributionVisibility contributionVisibility;
@@ -18,6 +19,12 @@ public class ContributionCreateRequestDTO {
     }
     public void setFundraisingId(String fundraisingId) {
         this.fundraisingId = fundraisingId;
+    }
+    public String getArtistId() {
+        return artistId;
+    }
+    public void setArtistId(String artistId) {
+        this.artistId = artistId;
     }
     public String getUserId() {
         return userId;

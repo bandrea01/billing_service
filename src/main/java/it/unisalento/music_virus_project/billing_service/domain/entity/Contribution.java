@@ -54,6 +54,7 @@ public class Contribution {
         this.createdAt = Instant.now();
         this.lastUpdate = Instant.now();
     }
+    public Contribution() {}
 
     public String getContributionId() {
         return contributionId;
