@@ -20,7 +20,7 @@ public class ContributionController {
     }
 
     @PostMapping()
-    public ResponseEntity<ContributionResponseDTO> createContribution(ContributionCreateRequestDTO contributionCreateRequestDTO) {
+    public ResponseEntity<ContributionResponseDTO> createContribution(@RequestBody ContributionCreateRequestDTO contributionCreateRequestDTO) {
         var response = contributionService.createContribution(contributionCreateRequestDTO);
         return ResponseEntity.ok(response);
     }

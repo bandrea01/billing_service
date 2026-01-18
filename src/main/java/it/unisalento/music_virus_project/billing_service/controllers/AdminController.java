@@ -51,6 +51,13 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/account/user/{userId}")
+    public ResponseEntity<AccountResponseDTO> createAccountForUser(@PathVariable String userId) {
+        var response = accountService.createAccount(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/subscriptions")
     public ResponseEntity<SubscriptionResponseDTO> createSubscription(@RequestBody SubscriptionCreateRequestDTO subscriptionCreateRequestDTO) {
         var response = feeService.createSubscription(subscriptionCreateRequestDTO);

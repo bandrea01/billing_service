@@ -1,5 +1,6 @@
 package it.unisalento.music_virus_project.billing_service.service.implementation;
 
+import it.unisalento.music_virus_project.billing_service.domain.entity.Account;
 import it.unisalento.music_virus_project.billing_service.domain.entity.Contribution;
 import it.unisalento.music_virus_project.billing_service.domain.entity.Transaction;
 import it.unisalento.music_virus_project.billing_service.domain.enums.ContributionStatus;
@@ -7,7 +8,11 @@ import it.unisalento.music_virus_project.billing_service.domain.enums.Contributi
 import it.unisalento.music_virus_project.billing_service.dto.contribution.ContributionCreateRequestDTO;
 import it.unisalento.music_virus_project.billing_service.dto.contribution.ContributionListResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.contribution.ContributionResponseDTO;
+import it.unisalento.music_virus_project.billing_service.messaging.dto.ContributionEventDTO;
+import it.unisalento.music_virus_project.billing_service.messaging.publish.ContributionEventPublisher;
+import it.unisalento.music_virus_project.billing_service.repositories.IAccountRepository;
 import it.unisalento.music_virus_project.billing_service.repositories.IContributionRepository;
+import it.unisalento.music_virus_project.billing_service.service.IAccountService;
 import it.unisalento.music_virus_project.billing_service.service.IContributionService;
 import it.unisalento.music_virus_project.billing_service.service.ITransactionService;
 import org.springframework.stereotype.Service;
@@ -17,39 +22,64 @@ import java.util.List;
 @Service
 public class ContributionService implements IContributionService {
 
+    private final IAccountRepository accountRepository;
     private final IContributionRepository contributionRepository;
     private final ITransactionService transactionService;
+    private final ContributionEventPublisher contributionEventPublisher;
 
-    public ContributionService(ITransactionService transactionService, IContributionRepository contributionRepository) {
+    public ContributionService(IAccountRepository accountRepository, ITransactionService transactionService, IContributionRepository contributionRepository, ContributionEventPublisher contributionEventPublisher) {
+        this.accountRepository = accountRepository;
         this.contributionRepository = contributionRepository;
         this.transactionService = transactionService;
+        this.contributionEventPublisher = contributionEventPublisher;
     }
 
     @Override
     public ContributionResponseDTO createContribution(ContributionCreateRequestDTO contributionCreateRequestDTO) {
+
+        //check account balance
+        Account account = accountRepository.findAccountByUserId(contributionCreateRequestDTO.getUserId());
+        if (account == null) {
+            throw new RuntimeException("Errore: account non trovato per l'utente con ID " + contributionCreateRequestDTO.getUserId());
+        }
+        if (account.getBalance().compareTo(contributionCreateRequestDTO.getAmount()) < 0) {
+            throw new RuntimeException("Errore: saldo insufficiente! Ricarica il conto per proseguire");
+        }
+
         Contribution contribution = new Contribution(
-            contributionCreateRequestDTO.getFundraisingId(),
-            contributionCreateRequestDTO.getUserId(),
-            contributionCreateRequestDTO.getAmount(),
-            contributionCreateRequestDTO.getContributionVisibility()
+                contributionCreateRequestDTO.getFundraisingId(),
+                contributionCreateRequestDTO.getUserId(),
+                contributionCreateRequestDTO.getAmount(),
+                contributionCreateRequestDTO.getContributionVisibility()
         );
 
+        // save contribution
         contribution = contributionRepository.save(contribution);
-
-        if(contribution.getContributionId() == null) {
+        if (contribution.getContributionId() == null) {
             throw new RuntimeException("Errore durante la creazione del contributo.");
         }
 
-        Transaction transaction = transactionService.recordContributionPayment(
-            contributionCreateRequestDTO.getUserId(),
-            contributionCreateRequestDTO.getArtistId(),
-            contributionCreateRequestDTO.getAmount(),
-            contribution.getContributionId()
-        );
+        // deduct amount from user account
+        account.setBalance(account.getBalance().subtract(contributionCreateRequestDTO.getAmount()));
 
+        // record transaction
+        Transaction transaction = transactionService.recordContributionPayment(
+                contributionCreateRequestDTO.getUserId(),
+                contributionCreateRequestDTO.getArtistId(),
+                contributionCreateRequestDTO.getAmount(),
+                contribution.getContributionId()
+        );
         if (transaction.getTransactionId() == null) {
             throw new RuntimeException("Errore durante la registrazione della transazione per il contributo.");
         }
+
+        // Rabbitmq event publishing
+        contributionEventPublisher.publishContributionAdded(
+                new ContributionEventDTO(
+                        contribution.getFundraisingId(),
+                        contribution.getAmount()
+                )
+        );
 
         return mapToDTO(contribution);
     }
@@ -57,7 +87,7 @@ public class ContributionService implements IContributionService {
     @Override
     public ContributionResponseDTO getContributionById(String contributionId) {
         Contribution contribution = contributionRepository.findByContributionId(contributionId);
-        if(contribution == null) {
+        if (contribution == null) {
             throw new RuntimeException("Errore: contributo non trovato con ID " + contributionId);
         }
         return mapToDTO(contribution);
@@ -138,7 +168,7 @@ public class ContributionService implements IContributionService {
     @Override
     public ContributionResponseDTO deleteContribution(String contributionId) {
         Contribution contribution = contributionRepository.findByContributionId(contributionId);
-        if(contribution == null) {
+        if (contribution == null) {
             throw new RuntimeException("Errore: contributo non trovato con ID " + contributionId);
         }
         contributionRepository.delete(contribution);
