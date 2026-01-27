@@ -28,6 +28,13 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping()
+    public ResponseEntity<AccountResponseDTO> createAccount(@AuthenticationPrincipal Jwt principal) {
+        String userId = principal.getClaimAsString("userId");
+        var response = accountService.createAccount(userId);
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping()
     public ResponseEntity<AccountResponseDTO> updateAccount(@AuthenticationPrincipal Jwt principal, @RequestBody AccountUpdateRequestDTO accountUpdateRequest) {
         String userId = principal.getClaimAsString("userId");
