@@ -21,8 +21,12 @@ public class RabbitMqConfiguration {
     private String contributionEventsExchangeName;
 
     //queues
-    @Value("${app.rabbitmq.user-events-queue}")
-    private String userEventsQueueName;
+    @Value("${app.rabbitmq.user-creation-queue}")
+    private String userCreationQueueName;
+    @Value("${app.rabbitmq.user-approval-queue}")
+    private String userApprovalQueueName;
+    @Value("${app.rabbitmq.user-enable-queue}")
+    private String userEnableQueueName;
     @Value ("${app.rabbitmq.contribution-events-queue}")
     private String contributionEventsQueueName;
 
@@ -33,21 +37,41 @@ public class RabbitMqConfiguration {
     @Bean
     public TopicExchange contributionEventsExchange() {return new TopicExchange(contributionEventsExchangeName, true, false);}
 
+    // User queues
     @Bean
-    public Queue userEventsQueue() {
-        return QueueBuilder.durable(userEventsQueueName).build();
+    public Queue userCreationQueue() {
+        return QueueBuilder.durable(userCreationQueueName).build();
     }
+    @Bean
+    public Queue userApprovalQueue() {return QueueBuilder.durable(userApprovalQueueName).build();}
+    @Bean
+    public Queue userEnableQueue() {return QueueBuilder.durable(userEnableQueueName).build();}
+
     @Bean
     public Queue contributionEventsQueue() {
         return QueueBuilder.durable(contributionEventsQueueName).build();
     }
 
+    // Queue bindings
     @Bean
-    public Binding userRegisteredBinding(Queue userEventsQueue, TopicExchange userEventsExchange) {
-        return BindingBuilder.bind(userEventsQueue)
+    public Binding userCreationBinding(Queue userCreationQueue, TopicExchange userEventsExchange) {
+        return BindingBuilder.bind(userCreationQueue)
                 .to(userEventsExchange)
                 .with(UserEventRoutingKeys.USER_CREATED);
     }
+    @Bean
+    public Binding userApprovalBinding(Queue userApprovalQueue, TopicExchange userEventsExchange) {
+        return BindingBuilder.bind(userApprovalQueue)
+                .to(userEventsExchange)
+                .with(UserEventRoutingKeys.USER_APPROVAL_CHANGED);
+    }
+    @Bean
+    public Binding userEnableBinding(Queue userEnableQueue, TopicExchange userEventsExchange) {
+        return BindingBuilder.bind(userEnableQueue)
+                .to(userEventsExchange)
+                .with(UserEventRoutingKeys.USER_ENABLED_CHANGED);
+    }
+
     @Bean
     public Binding contributionAddedBinding(Queue contributionEventsQueue, TopicExchange contributionEventsExchange) {
         return BindingBuilder.bind(contributionEventsQueue)

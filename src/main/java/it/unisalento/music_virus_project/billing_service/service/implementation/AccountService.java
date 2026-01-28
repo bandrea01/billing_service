@@ -33,9 +33,6 @@ public class AccountService implements IAccountService {
 
     @Override
     public AccountResponseDTO getAccountById(String accountId) {
-        //Only the owner can get his account details
-
-
         Account account = accountRepository.findAccountByAccountId(accountId);
         if (account == null) {
             throw new NotFoundException("Errore: Account non trovato!");
@@ -97,7 +94,7 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
-    public AccountResponseDTO disableAccountById(String accountId) {
+    public AccountResponseDTO closeAccountById(String accountId) {
         Account account = accountRepository.findAccountByAccountId(accountId);
         if(account == null) {
             throw new NotFoundException("Errore: Account non trovato!");
@@ -109,7 +106,7 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
-    public AccountResponseDTO disableAccountByUserId(String userId) {
+    public AccountResponseDTO closeAccountByUserId(String userId) {
         Account account = accountRepository.findAccountByUserId(userId);
         if(account == null) {
             throw new NotFoundException("Errore: Account non trovato!");
@@ -126,6 +123,28 @@ public class AccountService implements IAccountService {
             throw new NotFoundException("Errore: Account non trovato!");
         }
         account.setStatus(AccountStatus.ACTIVE);
+        account = accountRepository.save(account);
+        return mapToDTO(account);
+    }
+
+    @Override
+    public AccountResponseDTO suspendAccountById(String accountId) {
+        Account account = accountRepository.findAccountByAccountId(accountId);
+        if(account == null) {
+            throw new NotFoundException("Errore: Account non trovato!");
+        }
+        account.setStatus(AccountStatus.SUSPENDED);
+        account = accountRepository.save(account);
+        return mapToDTO(account);
+    }
+
+    @Override
+    public AccountResponseDTO suspendAccountByUserId(String userId) {
+        Account account = accountRepository.findAccountByUserId(userId);
+        if(account == null) {
+            throw new NotFoundException("Errore: Account non trovato!");
+        }
+        account.setStatus(AccountStatus.SUSPENDED);
         account = accountRepository.save(account);
         return mapToDTO(account);
     }

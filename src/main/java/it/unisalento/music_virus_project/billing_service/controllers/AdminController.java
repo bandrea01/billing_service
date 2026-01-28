@@ -25,14 +25,14 @@ public class AdminController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/account/disable/{accountId}")
     public ResponseEntity<AccountResponseDTO> disableAccountById(@PathVariable String accountId) {
-        var response = accountService.disableAccountById(accountId);
+        var response = accountService.closeAccountById(accountId);
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/account/disable/user/{userId}")
     public ResponseEntity<AccountResponseDTO> disableAccountByUserId(@PathVariable String userId) {
-        var response = accountService.disableAccountByUserId(userId);
+        var response = accountService.closeAccountByUserId(userId);
         return ResponseEntity.ok(response);
     }
 
