@@ -22,7 +22,7 @@ public class ContributionEventPublisher {
     }
 
     public void publishContributionAdded(ContributionEventDTO event) {
-        System.out.println("Publishing ContributionAddedEvent for fundraisingId=" + event.getFundraisingId());
+        log.info("Publishing ContributionAddedEvent for fundraisingId=" + event.getFundraisingId());
         rabbitTemplate.convertAndSend(contributionEventsExchange.getName(),
                 ContributionEventRoutingKeys.CONTRIBUTION_ADDED,
                 event);
