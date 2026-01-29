@@ -25,7 +25,7 @@ public class UserEventListener {
     /**
      * Handles the UserCreatedEvent by creating a bank account for the new user.
      */
-    @RabbitListener(queues = "${app.rabbitmq.user-created-queue}")
+    @RabbitListener(queues = "${app.rabbitmq.user-creation-queue}")
     public void createBankAccountOnUserCreation(UserCreatedEventDTO event) {
         log.info("Received UserCreatedEvent with userId={}", event.getUserId());
         AccountResponseDTO account = accountService.createAccount(event.getUserId());
