@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface IContributionRepository extends MongoRepository<Contribution, String> {
-    List<Contribution> findByEventId(String eventId);
+    List<Contribution> findAllByFundraisingId(String fundraisingId);
 }

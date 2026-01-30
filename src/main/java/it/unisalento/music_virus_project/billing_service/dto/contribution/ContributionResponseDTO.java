@@ -22,7 +22,7 @@ public class ContributionResponseDTO {
     public String getContributionId() { return contributionId; }
     public void setContributionId(String contributionId) { this.contributionId = contributionId; }
     public String getFundraisingId() { return fundraisingId; }
-    public void setFundraisingId(String eventId) { this.fundraisingId = eventId; }
+    public void setFundraisingId(String fundraisingId) { this.fundraisingId = fundraisingId; }
     public String getFanId() { return fanId; }
     public void setFanId(String fanId) { this.fanId = fanId; }
     public BigDecimal getAmount() { return amount; }

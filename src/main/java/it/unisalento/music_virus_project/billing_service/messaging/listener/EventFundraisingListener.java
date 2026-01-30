@@ -35,7 +35,7 @@ public class EventFundraisingListener {
     @RabbitListener(queues = "${app.rabbitmq.contribution-events-queue}")
     public void handleRefund(FundraisingRefundDTO event) {
 
-        List<Contribution> contributions = contributionRepository.findByEventId(event.getFundraisingId());
+        List<Contribution> contributions = contributionRepository.findAllByFundraisingId(event.getFundraisingId());
         if (contributions.isEmpty()) return;
 
         for (Contribution c : contributions) {
