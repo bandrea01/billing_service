@@ -2,11 +2,12 @@ package it.unisalento.music_virus_project.billing_service.dto.fee;
 
 import it.unisalento.music_virus_project.billing_service.domain.enums.TaxEnum;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public class TaxCreateRequestDTO {
     private TaxEnum taxName;
-    private double percentageOnTotal;
+    private BigDecimal percentageOnTotal;
     private Instant activeSince;
 
     public TaxCreateRequestDTO() {}
@@ -17,10 +18,10 @@ public class TaxCreateRequestDTO {
     public void setTaxName(TaxEnum taxName) {
         this.taxName = taxName;
     }
-    public double getPercentageOnTotal() {
+    public BigDecimal getPercentageOnTotal() {
         return percentageOnTotal;
     }
-    public void setPercentageOnTotal(double percentageOnTotal) {
+    public void setPercentageOnTotal(BigDecimal percentageOnTotal) {
         this.percentageOnTotal = percentageOnTotal;
     }
     public Instant getActiveSince() {return activeSince;}

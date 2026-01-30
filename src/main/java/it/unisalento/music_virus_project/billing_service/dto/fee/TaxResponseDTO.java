@@ -2,13 +2,14 @@ package it.unisalento.music_virus_project.billing_service.dto.fee;
 
 import it.unisalento.music_virus_project.billing_service.domain.enums.FeeType;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public class TaxResponseDTO {
     private FeeType feeType;
     private String feePlanId;
     private String taxName;
-    private double percentageOnTotal;
+    private BigDecimal percentageOnTotal;
     private Instant activeSince;
 
     public TaxResponseDTO(){}
@@ -31,10 +32,10 @@ public class TaxResponseDTO {
     public void setTaxName(String taxName) {
         this.taxName = taxName;
     }
-    public double getPercentageOnTotal() {
+    public BigDecimal getPercentageOnTotal() {
         return percentageOnTotal;
     }
-    public void setPercentageOnTotal(double percentageOnTotal) {
+    public void setPercentageOnTotal(BigDecimal percentageOnTotal) {
         this.percentageOnTotal = percentageOnTotal;
     }
     public Instant getActiveSince() {

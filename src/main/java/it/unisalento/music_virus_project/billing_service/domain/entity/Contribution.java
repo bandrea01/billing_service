@@ -4,126 +4,57 @@ import it.unisalento.music_virus_project.billing_service.domain.enums.Contributi
 import it.unisalento.music_virus_project.billing_service.domain.enums.ContributionVisibility;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Document(collection = "contributions")
 public class Contribution {
 
     @Id
     private String contributionId;
-
-    @Indexed
-    private String userId; // user who made the contribution
     @Indexed
     private String fundraisingId;
-
+    @Indexed
+    private String userId;
+    @Indexed
+    private String artistId;
     private BigDecimal amount;
-    private ContributionVisibility contributionVisibility;
-    private ContributionStatus status;
+    @Indexed
+    private ContributionStatus status = ContributionStatus.CAPTURED;
+    private ContributionVisibility visibility = ContributionVisibility.PUBLIC;
 
     @CreatedDate
     private Instant createdAt;
-    private Instant lastUpdate;
+    @LastModifiedDate
+    private Instant lastUpdatedAt;
 
-    public Contribution(String fundraisingId, String userId, BigDecimal amount, ContributionVisibility contributionVisibility, ContributionStatus status) {
-        this.fundraisingId = fundraisingId;
-        this.userId = userId;
-        this.amount = amount;
-        this.contributionVisibility = contributionVisibility;
-        this.status = status;
-        this.createdAt = Instant.now();
-        this.lastUpdate = Instant.now();
-    }
-    public Contribution(String fundraisingId, String userId, BigDecimal amount) {
-        this.fundraisingId = fundraisingId;
-        this.userId = userId;
-        this.amount = amount;
-        this.contributionVisibility = ContributionVisibility.PUBLIC;
-        this.status = ContributionStatus.CAPTURED;
-        this.createdAt = Instant.now();
-        this.lastUpdate = Instant.now();
-    }
-    public Contribution(String fundraisingId, String userId, BigDecimal amount, ContributionVisibility contributionVisibility) {
-        this.fundraisingId = fundraisingId;
-        this.userId = userId;
-        this.amount = amount;
-        this.contributionVisibility = contributionVisibility;
-        this.status = ContributionStatus.CAPTURED;
-        this.createdAt = Instant.now();
-        this.lastUpdate = Instant.now();
-    }
     public Contribution() {}
 
-    public String getContributionId() {
-        return contributionId;
-    }
+    public String getContributionId() { return contributionId; }
+    public void setContributionId(String contributionId) { this.contributionId = contributionId; }
 
-    public void setContributionId(String contributionId) {
-        this.contributionId = contributionId;
-        this.lastUpdate = Instant.now();
-    }
+    public String getFundraisingId() { return fundraisingId; }
+    public void setFundraisingId(String fundraisingId) { this.fundraisingId = fundraisingId; }
 
-    public String getUserId() {
-        return userId;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-        this.lastUpdate = Instant.now();
-    }
+    public String getArtistId() { return artistId; }
+    public void setArtistId(String artistId) { this.artistId = artistId; }
 
-    public String getFundraisingId() {
-        return fundraisingId;
-    }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
-    public void setFundraisingId(String fundraisingId) {
-        this.fundraisingId = fundraisingId;
-        this.lastUpdate = Instant.now();
-    }
+    public ContributionStatus getStatus() { return status; }
+    public void setStatus(ContributionStatus status) { this.status = status; }
 
-    public BigDecimal getAmount() {
-        return amount;
-    }
+    public ContributionVisibility getVisibility() { return visibility; }
+    public void setVisibility(ContributionVisibility visibility) { this.visibility = visibility; }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-        this.lastUpdate = Instant.now();
-    }
-
-    public ContributionVisibility getContributionVisibility() {
-        return contributionVisibility;
-    }
-
-    public void setContributionVisibility(ContributionVisibility contributionVisibility) {
-        this.contributionVisibility = contributionVisibility;
-        this.lastUpdate = Instant.now();
-    }
-
-    public ContributionStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ContributionStatus status) {
-        this.status = status;
-        this.lastUpdate = Instant.now();
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-        this.lastUpdate = Instant.now();
-    }
-
-    public Instant getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Instant lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getLastUpdatedAt() { return lastUpdatedAt; }
 }

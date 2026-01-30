@@ -1,7 +1,7 @@
 package it.unisalento.music_virus_project.billing_service.service.implementation;
 
-
 import it.unisalento.music_virus_project.billing_service.domain.entity.Account;
+import it.unisalento.music_virus_project.billing_service.domain.entity.Role;
 import it.unisalento.music_virus_project.billing_service.domain.enums.AccountStatus;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountListResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountResponseDTO;
@@ -10,7 +10,6 @@ import it.unisalento.music_virus_project.billing_service.exceptions.NotFoundExce
 import it.unisalento.music_virus_project.billing_service.repositories.IAccountRepository;
 import it.unisalento.music_virus_project.billing_service.service.IAccountService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,12 +17,13 @@ import java.util.List;
 @Service
 public class AccountService implements IAccountService {
 
+    private final AccountBalanceService balanceService;
     private final IAccountRepository accountRepository;
 
-    public AccountService(IAccountRepository accountRepository) {
+    public AccountService(IAccountRepository accountRepository, AccountBalanceService balanceService) {
         this.accountRepository = accountRepository;
+        this.balanceService = balanceService;
     }
-
 
     @Override
     public AccountListResponseDTO getAllAccounts() {
@@ -33,151 +33,130 @@ public class AccountService implements IAccountService {
 
     @Override
     public AccountResponseDTO getAccountById(String accountId) {
-        Account account = accountRepository.findAccountByAccountId(accountId);
-        if (account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
+        Account account = accountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new NotFoundException("Account non trovato"));
         return mapToDTO(account);
     }
 
     @Override
     public AccountResponseDTO getAccountByUserId(String userId) {
-        Account account = accountRepository.findAccountByUserId(userId);
-        if (account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Account non trovato"));
         return mapToDTO(account);
     }
 
     @Override
-    public AccountListResponseDTO getAccountsByStatus(AccountStatus status) {
-        List<Account> accounts = accountRepository.findAccountsByStatus(status);
-        return mapToListDTO(accounts);
+    public AccountResponseDTO getAdminAccount() {
+        Account admin = accountRepository.findFirstByRole(Role.ADMIN)
+                .orElseThrow(() -> new NotFoundException("Admin account non trovato"));
+        return mapToDTO(admin);
     }
 
     @Override
-    @Transactional
-    public AccountResponseDTO createAccount(String userId) {
-        Account account = new Account(userId);
-        accountRepository.save(account);
-        return mapToDTO(account);
+    public AccountResponseDTO createAccount(String userId, Role role) {
+        Account account = new Account();
+        account.setUserId(userId);
+        account.setRole(role);
+        account.setStatus(AccountStatus.ACTIVE);
+        account.setBalance(BigDecimal.ZERO);
+
+        return mapToDTO(accountRepository.save(account));
+    }
+
+    public void debit(String userId, BigDecimal amount) {
+        balanceService.debitByUserId(userId, amount);
+    }
+
+    public void credit(String userId, BigDecimal amount) {
+        balanceService.creditByUserId(userId, amount);
     }
 
     @Override
-    @Transactional
     public AccountResponseDTO depositByUserId(String userId, BigDecimal amount) {
-        Account account = accountRepository.findAccountByUserId(userId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        account.setBalance(account.getBalance().add(amount));
-        accountRepository.save(account);
-        return mapToDTO(account);
+        Account updated = balanceService.creditByUserId(userId, amount);
+        return mapToDTO(updated);
     }
 
     @Override
-    @Transactional
-    public AccountResponseDTO updateAccount(String userId, AccountUpdateRequestDTO accountUpdateRequestDTO) {
-        Account account = accountRepository.findAccountByUserId(userId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        if(accountUpdateRequestDTO.getAccountStatus() != null) {
-            account.setStatus(accountUpdateRequestDTO.getAccountStatus());
-        }
-        if(accountUpdateRequestDTO.getAccountBalance() != null) {
-            account.setBalance(accountUpdateRequestDTO.getAccountBalance());
-        }
-        accountRepository.save(account);
-        return mapToDTO(account);
+    public AccountResponseDTO depositOnAdminAccount(BigDecimal amount) {
+        Account admin = accountRepository.findFirstByRole(Role.ADMIN)
+                .orElseThrow(() -> new NotFoundException("Admin account non trovato"));
+        Account updated = balanceService.creditByUserId(admin.getUserId(), amount);
+        return mapToDTO(updated);
     }
 
     @Override
-    @Transactional
+    public AccountResponseDTO updateAccount(String userId, AccountUpdateRequestDTO dto) {
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Account non trovato"));
+
+        if (dto.getAccountStatus() != null) {
+            account.setStatus(dto.getAccountStatus());
+        }
+
+        if (dto.getAccountBalance() != null) {
+            account.setBalance(dto.getAccountBalance());
+        }
+
+        return mapToDTO(accountRepository.save(account));
+    }
+
+    @Override
     public AccountResponseDTO closeAccountById(String accountId) {
-        Account account = accountRepository.findAccountByAccountId(accountId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        account.setStatus(AccountStatus.CLOSED);
-        accountRepository.save(account);
-        return mapToDTO(account);
+        return changeStatusById(accountId, AccountStatus.CLOSED);
     }
 
     @Override
-    @Transactional
     public AccountResponseDTO closeAccountByUserId(String userId) {
-        Account account = accountRepository.findAccountByUserId(userId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        account.setStatus(AccountStatus.CLOSED);
-        account = accountRepository.save(account);
-        return mapToDTO(account);
+        return changeStatusByUserId(userId, AccountStatus.CLOSED);
     }
 
     @Override
     public AccountResponseDTO enableAccountById(String accountId) {
-        Account account = accountRepository.findAccountByAccountId(accountId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        account.setStatus(AccountStatus.ACTIVE);
-        account = accountRepository.save(account);
-        return mapToDTO(account);
-    }
-
-    @Override
-    public AccountResponseDTO suspendAccountById(String accountId) {
-        Account account = accountRepository.findAccountByAccountId(accountId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        account.setStatus(AccountStatus.SUSPENDED);
-        account = accountRepository.save(account);
-        return mapToDTO(account);
-    }
-
-    @Override
-    public AccountResponseDTO suspendAccountByUserId(String userId) {
-        Account account = accountRepository.findAccountByUserId(userId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        account.setStatus(AccountStatus.SUSPENDED);
-        account = accountRepository.save(account);
-        return mapToDTO(account);
+        return changeStatusById(accountId, AccountStatus.ACTIVE);
     }
 
     @Override
     public AccountResponseDTO enableAccountByUserId(String userId) {
-        Account account = accountRepository.findAccountByUserId(userId);
-        if(account == null) {
-            throw new NotFoundException("Errore: Account non trovato!");
-        }
-        account.setStatus(AccountStatus.ACTIVE);
-        account = accountRepository.save(account);
-        return mapToDTO(account);
+        return changeStatusByUserId(userId, AccountStatus.ACTIVE);
     }
 
-    //utils
+    @Override
+    public AccountResponseDTO suspendAccountById(String accountId) {
+        return changeStatusById(accountId, AccountStatus.SUSPENDED);
+    }
+
+    @Override
+    public AccountResponseDTO suspendAccountByUserId(String userId) {
+        return changeStatusByUserId(userId, AccountStatus.SUSPENDED);
+    }
+
+    private AccountResponseDTO changeStatusById(String accountId, AccountStatus status) {
+        Account account = accountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new NotFoundException("Account non trovato"));
+        account.setStatus(status);
+        return mapToDTO(accountRepository.save(account));
+    }
+
+    private AccountResponseDTO changeStatusByUserId(String userId, AccountStatus status) {
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Account non trovato"));
+        account.setStatus(status);
+        return mapToDTO(accountRepository.save(account));
+    }
+
     private AccountResponseDTO mapToDTO(Account account) {
         AccountResponseDTO dto = new AccountResponseDTO();
         dto.setAccountId(account.getAccountId());
         dto.setUserId(account.getUserId());
         dto.setBalance(account.getBalance());
         dto.setStatus(account.getStatus());
-        dto.setLastUpdate(account.getLastUpdate());
         return dto;
     }
+
     private AccountListResponseDTO mapToListDTO(List<Account> accounts) {
         AccountListResponseDTO listDTO = new AccountListResponseDTO();
-        for (Account account : accounts) {
-            listDTO.addAccount(mapToDTO(account));
-        }
+        for (Account a : accounts) listDTO.addAccount(mapToDTO(a));
         return listDTO;
     }
-
 }
-
-

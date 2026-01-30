@@ -7,9 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface ITransactionRepository extends MongoRepository<Transaction, String> {
-    Transaction findTransactionByTransactionId(String transactionId);
-    List<Transaction> findAllBySenderId(String senderId);
-    List<Transaction> findAllByReceiverId(String receiverId);
-    List<Transaction> findAllByReferenceType (TransactionReferenceType referenceType);
-    List<Transaction> findAllByReferenceId (String referenceId);
+    List<Transaction> findBySenderId(String senderId);
+    List<Transaction> findByReceiverId(String receiverId);
+    List<Transaction> findByReferenceTypeAndReferenceId(TransactionReferenceType referenceType, String referenceId);
 }

@@ -2,96 +2,59 @@ package it.unisalento.music_virus_project.billing_service.domain.entity;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
+@Document(collection = "refunds")
 public class Refund {
 
     @Id
     private String refundId;
 
     @Indexed
-    private String contributionId;
-    @Indexed
-    private String userId; //user who received the refund
-    @Indexed
-    private String accountId; //account where the refund was sent
-    @Indexed
     private String fundraisingId;
+
+    @Indexed(unique = true)
+    private String contributionId;
+
+    @Indexed
+    private String userId;
+
+    @Indexed
+    private String artistId;
+
+    private BigDecimal amount;
 
     @CreatedDate
     private Instant createdAt;
-    private Instant lastUpdate;
 
-    public Refund(String contributionId, String userId, String accountId, String fundraisingId) {
-        this.contributionId = contributionId;
-        this.userId = userId;
-        this.accountId = accountId;
-        this.fundraisingId = fundraisingId;
-        this.createdAt = Instant.now();
-        this.lastUpdate = Instant.now();
-    }
+    @LastModifiedDate
+    private Instant lastUpdatedAt;
 
-    public String getRefundId() {
-        return refundId;
-    }
+    public Refund() {}
 
-    public void setRefundId(String refundId) {
-        this.refundId = refundId;
-        this.lastUpdate = Instant.now();
-    }
+    public String getRefundId() { return refundId; }
+    public void setRefundId(String refundId) { this.refundId = refundId; }
 
-    public String getContributionId() {
-        return contributionId;
-    }
+    public String getFundraisingId() { return fundraisingId; }
+    public void setFundraisingId(String fundraisingId) { this.fundraisingId = fundraisingId; }
 
-    public void setContributionId(String contributionId) {
-        this.contributionId = contributionId;
-        this.lastUpdate = Instant.now();
-    }
+    public String getContributionId() { return contributionId; }
+    public void setContributionId(String contributionId) { this.contributionId = contributionId; }
 
-    public String getUserId() {
-        return userId;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-        this.lastUpdate = Instant.now();
-    }
+    public String getArtistId() { return artistId; }
+    public void setArtistId(String artistId) { this.artistId = artistId; }
 
-    public String getAccountId() {
-        return accountId;
-    }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-        this.lastUpdate = Instant.now();
-    }
-
-    public String getFundraisingId() {
-        return fundraisingId;
-    }
-
-    public void setFundraisingId(String fundraisingId) {
-        this.fundraisingId = fundraisingId;
-        this.lastUpdate = Instant.now();
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-        this.lastUpdate = Instant.now();
-    }
-
-    public Instant getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Instant lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getLastUpdatedAt() { return lastUpdatedAt; }
 }

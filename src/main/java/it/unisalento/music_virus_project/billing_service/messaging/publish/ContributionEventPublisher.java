@@ -1,7 +1,7 @@
 package it.unisalento.music_virus_project.billing_service.messaging.publish;//package it.unisalento.music_virus_project.billing_service.messaging;
 
 import it.unisalento.music_virus_project.billing_service.messaging.dto.ContributionEventDTO;
-import it.unisalento.music_virus_project.billing_service.messaging.keys.ContributionEventRoutingKeys;
+import it.unisalento.music_virus_project.billing_service.messaging.keys.EventFundraisingsRoutingKeys;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class ContributionEventPublisher {
     public void publishContributionAdded(ContributionEventDTO event) {
         log.info("Publishing ContributionAddedEvent for fundraisingId=" + event.getFundraisingId());
         rabbitTemplate.convertAndSend(contributionEventsExchange.getName(),
-                ContributionEventRoutingKeys.CONTRIBUTION_ADDED,
+                EventFundraisingsRoutingKeys.CONTRIBUTION_ADDED,
                 event);
         log.info("Published ContributionAddedEvent for fundraisingId={}");
     }

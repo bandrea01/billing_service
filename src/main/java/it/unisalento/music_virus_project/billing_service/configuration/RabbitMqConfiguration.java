@@ -1,6 +1,6 @@
 package it.unisalento.music_virus_project.billing_service.configuration;
 
-import it.unisalento.music_virus_project.billing_service.messaging.keys.ContributionEventRoutingKeys;
+import it.unisalento.music_virus_project.billing_service.messaging.keys.EventFundraisingsRoutingKeys;
 import it.unisalento.music_virus_project.billing_service.messaging.keys.UserEventRoutingKeys;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
@@ -17,6 +17,8 @@ public class RabbitMqConfiguration {
     //exchanges
     @Value("${app.rabbitmq.user-events-exchange}")
     private String userEventsExchangeName;
+    @Value("${app.rabbitmq.event-fundraising-exchange}")
+    private String eventFundraisingExchangeName;
     @Value("${app.rabbitmq.contribution-events-exchange}")
     private String contributionEventsExchangeName;
 
@@ -27,12 +29,20 @@ public class RabbitMqConfiguration {
     private String userApprovalQueueName;
     @Value("${app.rabbitmq.user-enable-queue}")
     private String userEnableQueueName;
+    @Value("${app.rabbitmq.event-creation-queue}")
+    private String eventCreationQueueName;
+    @Value("${app.rabbitmq.fundraising-refund-queue}")
+    private String fundraisingRefundQueueName;
     @Value ("${app.rabbitmq.contribution-events-queue}")
     private String contributionEventsQueueName;
 
     @Bean
     public TopicExchange userEventsExchange() {
         return new TopicExchange(userEventsExchangeName, true, false);
+    }
+    @Bean
+    public TopicExchange eventFundraisingExchange() {
+        return new TopicExchange(eventFundraisingExchangeName, true, false);
     }
     @Bean
     public TopicExchange contributionEventsExchange() {return new TopicExchange(contributionEventsExchangeName, true, false);}
@@ -47,6 +57,14 @@ public class RabbitMqConfiguration {
     @Bean
     public Queue userEnableQueue() {return QueueBuilder.durable(userEnableQueueName).build();}
 
+    @Bean
+    public Queue eventCreationQueue() {
+        return QueueBuilder.durable(eventCreationQueueName).build();
+    }
+    @Bean
+    public Queue fundraisingRefundQueue() {
+        return QueueBuilder.durable(fundraisingRefundQueueName).build();
+    }
     @Bean
     public Queue contributionEventsQueue() {
         return QueueBuilder.durable(contributionEventsQueueName).build();
@@ -73,10 +91,22 @@ public class RabbitMqConfiguration {
     }
 
     @Bean
+    public Binding eventCreationBinding(Queue eventCreationQueue, TopicExchange eventFundraisingExchange) {
+        return BindingBuilder.bind(eventCreationQueue)
+                .to(eventFundraisingExchange)
+                .with(EventFundraisingsRoutingKeys.EVENT_CREATED);
+    }
+    @Bean
+    public Binding fundraisingRefundBinding(Queue fundraisingRefundQueue, TopicExchange eventFundraisingExchange) {
+        return BindingBuilder.bind(fundraisingRefundQueue)
+                .to(eventFundraisingExchange)
+                .with(EventFundraisingsRoutingKeys.FUNDRAISING_REFUNDED);
+    }
+    @Bean
     public Binding contributionAddedBinding(Queue contributionEventsQueue, TopicExchange contributionEventsExchange) {
         return BindingBuilder.bind(contributionEventsQueue)
                 .to(contributionEventsExchange)
-                .with(ContributionEventRoutingKeys.CONTRIBUTION_ADDED);
+                .with(EventFundraisingsRoutingKeys.CONTRIBUTION_ADDED);
     }
 
     @Bean

@@ -5,7 +5,7 @@ import it.unisalento.music_virus_project.billing_service.domain.entity.Role;
 import it.unisalento.music_virus_project.billing_service.domain.entity.fee.Subscription;
 import it.unisalento.music_virus_project.billing_service.domain.enums.FeeType;
 import it.unisalento.music_virus_project.billing_service.dto.fee.*;
-import it.unisalento.music_virus_project.billing_service.exceptions.AlreadyExistingFeePlanException;
+import it.unisalento.music_virus_project.billing_service.exceptions.InsufficentBalanceException;
 import it.unisalento.music_virus_project.billing_service.exceptions.NotFoundException;
 import it.unisalento.music_virus_project.billing_service.repositories.ITaxRepository;
 import it.unisalento.music_virus_project.billing_service.repositories.ISubscriptionRepository;
@@ -60,10 +60,9 @@ public class FeeService implements IFeeService {
     @Override
     @Transactional
     public SubscriptionResponseDTO createSubscription(SubscriptionCreateRequestDTO subscriptionCreateRequestDTO) {
-        // Any user type should have only one fee plan
         List<Subscription> existingSubscription = subscriptionRepository.findSubscriptionByIsApplicatedToContains(subscriptionCreateRequestDTO.getIsApplicatedTo().iterator().next());
         if (!existingSubscription.isEmpty()) {
-            throw new AlreadyExistingFeePlanException("Errore: esiste già un piano tariffario per uno dei ruoli specificati.");
+            throw new InsufficentBalanceException("Errore: esiste già un piano tariffario per uno dei ruoli specificati.");
         }
 
         Subscription subscription = new Subscription();
@@ -137,7 +136,7 @@ public class FeeService implements IFeeService {
         if(taxUpdateRequestDTO.getTaxName() != null) {
             Tax existingTax = taxRepository.findTaxByTaxName(taxUpdateRequestDTO.getTaxName());
             if (existingTax != null && !existingTax.getFeePlanId().equals(feePlanId)) {
-                throw new AlreadyExistingFeePlanException("Errore: esiste già una tassazione con questo nome");
+                throw new InsufficentBalanceException("Errore: esiste già una tassazione con questo nome");
             }
             eventTax.setTaxName(taxUpdateRequestDTO.getTaxName());
         }

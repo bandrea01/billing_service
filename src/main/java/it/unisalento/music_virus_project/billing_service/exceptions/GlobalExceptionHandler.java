@@ -112,8 +112,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-    @ExceptionHandler(AlreadyExistingFeePlanException.class)
-    public ResponseEntity<ApiError> handleAlreadyExistingFeePlan(AlreadyExistingFeePlanException ex, HttpServletRequest req) {
+    @ExceptionHandler(InsufficentBalanceException.class)
+    public ResponseEntity<ApiError> handleAlreadyExistingFeePlan(InsufficentBalanceException ex, HttpServletRequest req) {
         ApiError body = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -123,4 +123,5 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
+
 }
