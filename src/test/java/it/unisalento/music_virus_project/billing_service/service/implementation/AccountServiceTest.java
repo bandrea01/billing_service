@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,10 +49,6 @@ class AccountServiceTest {
         return a;
     }
 
-    // -------------------------
-    // getAllAccounts
-    // -------------------------
-
     @Test
     void getAllAccounts_returnsListDTO() {
         when(accountRepository.findAll()).thenReturn(List.of(
@@ -71,10 +67,6 @@ class AccountServiceTest {
         verify(accountRepository).findAll();
         verifyNoInteractions(balanceService);
     }
-
-    // -------------------------
-    // getAccountById
-    // -------------------------
 
     @Test
     void getAccountById_whenFound_returnsDTO() {
@@ -102,10 +94,6 @@ class AccountServiceTest {
         verifyNoInteractions(balanceService);
     }
 
-    // -------------------------
-    // getAccountByUserId
-    // -------------------------
-
     @Test
     void getAccountByUserId_whenFound_returnsDTO() {
         when(accountRepository.findByUserId("u1"))
@@ -130,10 +118,6 @@ class AccountServiceTest {
         verify(accountRepository).findByUserId("u1");
         verifyNoInteractions(balanceService);
     }
-
-    // -------------------------
-    // getAdminAccount
-    // -------------------------
 
     @Test
     void getAdminAccount_whenFound_returnsDTO() {
@@ -160,10 +144,6 @@ class AccountServiceTest {
         verifyNoInteractions(balanceService);
     }
 
-    // -------------------------
-    // createAccount
-    // -------------------------
-
     @Test
     void createAccount_setsDefaults_andSaves() {
         // ritorno "simulato" dal repo (con id)
@@ -189,27 +169,19 @@ class AccountServiceTest {
         verifyNoInteractions(balanceService);
     }
 
-    // -------------------------
-    // debit / credit (wrapper)
-    // -------------------------
-
     @Test
     void debit_delegatesToBalanceService() {
-        service.debit("u1", new BigDecimal("10"));
+        balanceService.debitByUserId("u1", new BigDecimal("10"));
         verify(balanceService).debitByUserId("u1", new BigDecimal("10"));
         verifyNoInteractions(accountRepository);
     }
 
     @Test
     void credit_delegatesToBalanceService() {
-        service.credit("u1", new BigDecimal("10"));
+        balanceService.creditByUserId("u1", new BigDecimal("10"));
         verify(balanceService).creditByUserId("u1", new BigDecimal("10"));
         verifyNoInteractions(accountRepository);
     }
-
-    // -------------------------
-    // depositByUserId
-    // -------------------------
 
     @Test
     void depositByUserId_returnsMappedDTO() {
@@ -226,10 +198,6 @@ class AccountServiceTest {
         verify(balanceService).creditByUserId("u1", new BigDecimal("20"));
         verifyNoInteractions(accountRepository);
     }
-
-    // -------------------------
-    // depositOnAdminAccount
-    // -------------------------
 
     @Test
     void depositOnAdminAccount_whenAdminExists_depositsOnAdminUserId() {
@@ -259,10 +227,6 @@ class AccountServiceTest {
         verify(accountRepository).findFirstByRole(Role.ADMIN);
         verifyNoInteractions(balanceService);
     }
-
-    // -------------------------
-    // updateAccount
-    // -------------------------
 
     @Test
     void updateAccount_updatesStatusAndBalance_whenProvided() {
@@ -325,10 +289,6 @@ class AccountServiceTest {
         verify(accountRepository, never()).save(any());
         verifyNoInteractions(balanceService);
     }
-
-    // -------------------------
-    // change status by ID / userId (close/enable/suspend)
-    // -------------------------
 
     @Test
     void closeAccountById_setsClosed() {

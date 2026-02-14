@@ -2,7 +2,6 @@ package it.unisalento.music_virus_project.billing_service.service;
 
 
 import it.unisalento.music_virus_project.billing_service.domain.entity.Role;
-import it.unisalento.music_virus_project.billing_service.domain.enums.AccountStatus;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountListResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountUpdateRequestDTO;

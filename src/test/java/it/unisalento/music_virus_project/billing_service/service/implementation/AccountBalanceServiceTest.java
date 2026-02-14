@@ -3,6 +3,7 @@ package it.unisalento.music_virus_project.billing_service.service.implementation
 import it.unisalento.music_virus_project.billing_service.domain.entity.Account;
 import it.unisalento.music_virus_project.billing_service.exceptions.InsufficentBalanceException;
 import it.unisalento.music_virus_project.billing_service.exceptions.NotFoundException;
+import it.unisalento.music_virus_project.billing_service.repositories.IAccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,50 +18,47 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountBalanceServiceTest {
 
     @Mock
-    private MongoTemplate mongoTemplate;
+    private IAccountRepository accountRepository;
 
     private AccountBalanceService service;
 
     @BeforeEach
     void setUp() {
-        service = new AccountBalanceService(mongoTemplate);
+        service = new AccountBalanceService(accountRepository);
     }
-
-    // -------------------------
-    // debitByUserId
-    // -------------------------
 
     @Test
     void debitByUserId_whenAmountNull_throwsIllegalArgument() {
         assertThrows(IllegalArgumentException.class,
                 () -> service.debitByUserId("u1", null));
-        verifyNoInteractions(mongoTemplate);
+        verifyNoInteractions(accountRepository);
     }
 
     @Test
     void debitByUserId_whenAmountZero_throwsIllegalArgument() {
         assertThrows(IllegalArgumentException.class,
                 () -> service.debitByUserId("u1", BigDecimal.ZERO));
-        verifyNoInteractions(mongoTemplate);
+        verifyNoInteractions(accountRepository);
     }
 
     @Test
     void debitByUserId_whenAmountNegative_throwsIllegalArgument() {
         assertThrows(IllegalArgumentException.class,
                 () -> service.debitByUserId("u1", new BigDecimal("-1")));
-        verifyNoInteractions(mongoTemplate);
+        verifyNoInteractions(accountRepository);
     }
 
     @Test
     void debitByUserId_whenMongoReturnsNull_throwsInsufficientBalance() {
-        when(mongoTemplate.findAndModify(
+        when(accountRepository.findAndModify(
                 any(Query.class),
                 any(Update.class),
                 any(FindAndModifyOptions.class),
