@@ -2,6 +2,7 @@ package it.unisalento.music_virus_project.billing_service.messaging.listener;
 
 import it.unisalento.music_virus_project.billing_service.domain.entity.Contribution;
 import it.unisalento.music_virus_project.billing_service.domain.entity.Refund;
+import it.unisalento.music_virus_project.billing_service.messaging.dto.EventCreationDTO;
 import it.unisalento.music_virus_project.billing_service.messaging.dto.FundraisingRefundDTO;
 import it.unisalento.music_virus_project.billing_service.repositories.IContributionRepository;
 import it.unisalento.music_virus_project.billing_service.repositories.IRefundRepository;
@@ -34,32 +35,57 @@ public class EventFundraisingListener {
 
     @RabbitListener(queues = "${app.rabbitmq.contribution-events-queue}")
     public void handleRefund(FundraisingRefundDTO event) {
-
+        System.out.println("Ricevuto evento di rimborso per fundraisingId: " + event.getFundraisingId() + " e artistId: " + event.getArtistId());
         List<Contribution> contributions = contributionRepository.findAllByFundraisingId(event.getFundraisingId());
         if (contributions.isEmpty()) return;
 
-        for (Contribution c : contributions) {
+        for (Contribution contribution : contributions) {
 
-            if (refundRepository.findByContributionId(c.getContributionId()).isPresent()) {
+            // Continue if already refunded
+            if (refundRepository.findByContributionId(contribution.getContributionId()).isPresent()) {
                 continue;
             }
 
-            Refund r = new Refund();
-            r.setFundraisingId(event.getFundraisingId());
-            r.setContributionId(c.getContributionId());
-            r.setUserId(c.getUserId());
-            r.setArtistId(event.getArtistId());
-            r.setAmount(c.getAmount());
+            Refund refund = new Refund();
+            refund.setFundraisingId(event.getFundraisingId());
+            refund.setContributionId(contribution.getContributionId());
+            refund.setUserId(contribution.getUserId());
+            refund.setArtistId(event.getArtistId());
+            refund.setAmount(contribution.getAmount());
 
-            Refund saved = refundRepository.save(r);
+            refund = refundRepository.save(refund);
 
-            accountService.credit(c.getUserId(), c.getAmount());
-            transactionService.recordRefund(
+            if (refund.getRefundId() == null) {
+                throw new RuntimeException("Errore durante la registrazione del rimborso");
+            }
+
+            // Transaction creation
+            try {
+                transactionService.recordRefund(
+                        event.getArtistId(),
+                        contribution.getUserId(),
+                        contribution.getAmount(),
+                        refund.getRefundId()
+                );
+            } catch (Exception e) {
+                refundRepository.deleteById(refund.getRefundId());
+                throw new RuntimeException("Errore durante la registrazione della transazione di rimborso: " + e.getMessage());
+            }
+
+        }
+    }
+
+    @RabbitListener(queues = "${app.rabbitmq.event-creation-queue}")
+    public void handleEventCreation(EventCreationDTO event) {
+        System.out.println("Ricevuto evento di creazione, pagamento per artist con id: " + event.getArtistId() + " e amount: " + event.getAmount());
+        try {
+            transactionService.recordEventPayment(
+                    event.getEventId(),
                     event.getArtistId(),
-                    c.getUserId(),
-                    c.getAmount(),
-                    saved.getRefundId()
+                    event.getAmount()
             );
+        } catch (Exception e) {
+            throw new RuntimeException("Errore durante il trasferimento dei fondi all'artista: " + e.getMessage());
         }
     }
 }

@@ -3,62 +3,60 @@ package it.unisalento.music_virus_project.billing_service.service.implementation
 import it.unisalento.music_virus_project.billing_service.domain.entity.Account;
 import it.unisalento.music_virus_project.billing_service.exceptions.InsufficentBalanceException;
 import it.unisalento.music_virus_project.billing_service.exceptions.NotFoundException;
+import it.unisalento.music_virus_project.billing_service.repositories.IAccountRepository;
 import it.unisalento.music_virus_project.billing_service.service.IAccountBalanceService;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Service
 public class AccountBalanceService implements IAccountBalanceService {
 
-    private final MongoTemplate mongoTemplate;
+    private final IAccountRepository accountRepository;
 
-    public AccountBalanceService(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+    public AccountBalanceService(IAccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
     @Override
     public Account debitByUserId(String userId, BigDecimal amount) {
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Account non trovato per userId: " + userId));
+
         if (amount == null || amount.signum() <= 0) {
             throw new IllegalArgumentException("Errore: l'importo deve essere maggiore di 0");
         }
+        BigDecimal balance = account.getBalance();
+        System.out.println("balance=" + balance.toPlainString() + " amount=" + amount.toPlainString() + " compareTo=" + balance.compareTo(amount));
 
-        Query query = new Query(new Criteria().andOperator(
-                Criteria.where("userId").is(userId),
-                Criteria.where("balance").gte(amount)
-        ));
+        System.out.println("DEBIT CALLED userId=" + userId + " amount=" + amount);
+        for (StackTraceElement el : Thread.currentThread().getStackTrace()) {
+            System.out.println("  at " + el);
+        }
 
-        Update update = new Update().inc("balance", amount.negate());
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new InsufficentBalanceException("Saldo insufficiente per l'addebito richiesto");
+        }
 
-        Account accountUpdated = mongoTemplate.findAndModify(
-                query, update, FindAndModifyOptions.options().returnNew(true),
-                Account.class
-        );
+        account.setBalance(account.getBalance().subtract(amount));
+        account.setLastUpdatedAt(Instant.now());
 
-        if (accountUpdated == null) throw new InsufficentBalanceException("Errore: saldo insufficiente" + userId);
-        return accountUpdated;
+        return accountRepository.save(account);
     }
 
     @Override
     public Account creditByUserId(String userId, BigDecimal amount) {
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Account non trovato per userId: " + userId));
+
         if (amount == null || amount.signum() <= 0) {
             throw new IllegalArgumentException("Errore: l'importo deve essere maggiore di 0");
         }
 
-        Query q = new Query(Criteria.where("userId").is(userId));
-        Update u = new Update().inc("balance", amount);
+        account.setBalance(account.getBalance().add(amount));
+        account.setLastUpdatedAt(Instant.now());
 
-        Account updated = mongoTemplate.findAndModify(
-                q, u, FindAndModifyOptions.options().returnNew(true),
-                Account.class
-        );
-
-        if (updated == null) throw new NotFoundException("Errore: account non trovato" + userId);
-        return updated;
+        return accountRepository.save(account);
     }
 }

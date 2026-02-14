@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class EventCreationDTO {
     private String artistId;
+    private String eventId;
     private BigDecimal amount;
 
     public String getArtistId() {
@@ -11,6 +12,12 @@ public class EventCreationDTO {
     }
     public void setArtistId(String artistId) {
         this.artistId = artistId;
+    }
+    public String getEventId() {
+        return eventId;
+    }
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
     public BigDecimal getAmount() {
         return amount;

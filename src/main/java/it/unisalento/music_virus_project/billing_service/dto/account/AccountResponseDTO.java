@@ -11,7 +11,7 @@ public class AccountResponseDTO {
     private String userId;
     private BigDecimal balance;
     private AccountStatus status;
-    private Instant lastUpdate;
+    private Instant lastUpdatedAt;
 
     public AccountResponseDTO() {}
 
@@ -39,11 +39,11 @@ public class AccountResponseDTO {
     public void setStatus(AccountStatus status) {
         this.status = status;
     }
-    public Instant getLastUpdate() {
-        return lastUpdate;
+    public Instant getLastUpdatedAt() {
+        return lastUpdatedAt;
     }
-    public void setLastUpdate(Instant lastUpdate) {
-        this.lastUpdate = lastUpdate;
+    public void setLastUpdatedAt(Instant lastUpdatedAt) {
+        this.lastUpdatedAt = lastUpdatedAt;
     }
 
 }

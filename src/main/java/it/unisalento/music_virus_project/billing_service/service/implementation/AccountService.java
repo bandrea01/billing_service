@@ -12,6 +12,7 @@ import it.unisalento.music_virus_project.billing_service.service.IAccountService
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -54,21 +55,17 @@ public class AccountService implements IAccountService {
 
     @Override
     public AccountResponseDTO createAccount(String userId, Role role) {
+        System.out.println("Creating account for userId: " + userId + " with role: " + role);
+
         Account account = new Account();
         account.setUserId(userId);
         account.setRole(role);
         account.setStatus(AccountStatus.ACTIVE);
         account.setBalance(BigDecimal.ZERO);
+        account.setCreatedAt(Instant.now());
+        account.setLastUpdatedAt(Instant.now());
 
         return mapToDTO(accountRepository.save(account));
-    }
-
-    public void debit(String userId, BigDecimal amount) {
-        balanceService.debitByUserId(userId, amount);
-    }
-
-    public void credit(String userId, BigDecimal amount) {
-        balanceService.creditByUserId(userId, amount);
     }
 
     @Override
@@ -151,6 +148,7 @@ public class AccountService implements IAccountService {
         dto.setUserId(account.getUserId());
         dto.setBalance(account.getBalance());
         dto.setStatus(account.getStatus());
+        dto.setLastUpdatedAt(Instant.now());
         return dto;
     }
 

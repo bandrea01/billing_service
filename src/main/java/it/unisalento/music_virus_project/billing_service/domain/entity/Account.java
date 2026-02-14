@@ -1,13 +1,15 @@
 package it.unisalento.music_virus_project.billing_service.domain.entity;
 
 import it.unisalento.music_virus_project.billing_service.domain.enums.AccountStatus;
-import org.springframework.data.annotation.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Objects;
 
 @Document(collection = "accounts")
 public class Account {
@@ -18,7 +20,7 @@ public class Account {
     private String userId;
     @Indexed
     private Role role;
-    private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal balance;
     private AccountStatus status = AccountStatus.ACTIVE;
     @Version
     private Long version;
@@ -27,7 +29,10 @@ public class Account {
     @LastModifiedDate
     private Instant lastUpdatedAt;
 
-    public Account() {}
+    public Account() {
+        this.balance = BigDecimal.ZERO;
+        this.lastUpdatedAt = Instant.now();
+    }
 
     public String getAccountId() { return accountId; }
     public void setAccountId(String accountId) { this.accountId = accountId; }
@@ -45,7 +50,10 @@ public class Account {
     public void setBalance(BigDecimal balance) { this.balance = balance; }
 
     public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
     public Instant getLastUpdatedAt() { return lastUpdatedAt; }
+    public void setLastUpdatedAt(Instant lastUpdatedAt) { this.lastUpdatedAt = lastUpdatedAt; }
 
     public Long getVersion() { return version; }
 }
