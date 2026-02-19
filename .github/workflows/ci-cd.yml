@@ -20,6 +20,84 @@ jobs:
           java-version: '17'
           cache: gradle
 
+      - name: Run Tests
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean test --no-daemon --stacktrace
+
+      - name: Debug test files
+        if: always()
+        run: |
+          find . -maxdepth 6 -type d -name "test-results" -print || true
+          find . -maxdepth 8 -type f -name "TEST-*.xml" -print || true
+          find . -maxdepth 8 -type f -path "*/build/reports/tests/test/index.html" -print || true
+
+      - name: Test summary
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t files < <(find . -type f -name "TEST-*.xml" 2>/dev/null || true)
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo -e "\033[33m⚠️  No JUnit XML found (TEST-*.xml)\033[0m"
+            echo "### 🧪 Test Summary" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ No JUnit XML found (TEST-*.xml)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          total=0
+          failures=0
+          errors=0
+          skipped=0
+
+          for f in "${files[@]}"; do
+            t=$(grep -oP 'tests="\K[0-9]+'     "$f" | head -n1 || echo 0)
+            fa=$(grep -oP 'failures="\K[0-9]+' "$f" | head -n1 || echo 0)
+            er=$(grep -oP 'errors="\K[0-9]+'   "$f" | head -n1 || echo 0)
+            sk=$(grep -oP 'skipped="\K[0-9]+'  "$f" | head -n1 || echo 0)
+
+            total=$((total + t))
+            failures=$((failures + fa))
+            errors=$((errors + er))
+            skipped=$((skipped + sk))
+          done
+
+          failed=$((failures + errors))
+          passed=$((total - failed - skipped))
+          [ $passed -lt 0 ] && passed=0
+
+          GREEN="\033[32m"; RED="\033[31m"; YELLOW="\033[33m"; RESET="\033[0m"
+
+          if [ $failed -eq 0 ]; then
+            echo -e "${GREEN}✅ ALL TESTS OK${RESET}"
+          else
+            echo -e "${RED}❌ TESTS FAILED${RESET}"
+          fi
+
+          echo -e "${GREEN}Passed:${RESET}  $passed"
+          echo -e "${RED}Failed:${RESET}  $failed  (failures=$failures, errors=$errors)"
+          echo -e "${YELLOW}Skipped:${RESET} $skipped"
+          echo "Total:   $total"
+
+          echo "### 🧪 Test Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ $failed -eq 0 ]; then
+            echo "✅ **ALL TESTS OK**" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "❌ **TESTS FAILED**" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Count |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---:|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ✅ Passed | $passed |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ❌ Failed | $failed |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ↪️ Skipped | $skipped |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 📦 Total | $total |" >> "$GITHUB_STEP_SUMMARY"
+
+
       - name: Build JAR
         run: |
           chmod +x ./gradlew
