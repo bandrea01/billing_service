@@ -36,7 +36,8 @@ public class ContributionController {
                 createContributionRequest.getFundraisingId(),
                 userId,
                 createContributionRequest.getArtistId(),
-                createContributionRequest.getAmount()
+                createContributionRequest.getAmount(),
+                createContributionRequest.getContributionVisibility()
         );
 
         return ResponseEntity.ok(contribution);

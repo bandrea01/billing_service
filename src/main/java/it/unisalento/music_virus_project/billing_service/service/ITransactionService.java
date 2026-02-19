@@ -12,4 +12,7 @@ public interface ITransactionService {
     void recordEventPayment(String eventId, String receiverId, BigDecimal amount);
     void recordContributionPayment(String senderId, String receiverId, BigDecimal amount, String contributionId);
     void recordRefund(String senderId, String receiverId, BigDecimal amount, String refundId);
+    TransactionListResponseDTO getLast10TransactionsByUserId(String userId);
+    TransactionListResponseDTO getAllTransactionsByUserId(String userId);
+    TransactionListResponseDTO getLast10IncomingTransactionsByUserId(String userId);
 }

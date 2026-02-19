@@ -31,9 +31,6 @@ public class AccountBalanceService implements IAccountBalanceService {
         System.out.println("balance=" + balance.toPlainString() + " amount=" + amount.toPlainString() + " compareTo=" + balance.compareTo(amount));
 
         System.out.println("DEBIT CALLED userId=" + userId + " amount=" + amount);
-        for (StackTraceElement el : Thread.currentThread().getStackTrace()) {
-            System.out.println("  at " + el);
-        }
 
         if (account.getBalance().compareTo(amount) < 0) {
             throw new InsufficentBalanceException("Saldo insufficiente per l'addebito richiesto");

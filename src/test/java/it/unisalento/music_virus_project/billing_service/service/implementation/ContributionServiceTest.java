@@ -1,6 +1,7 @@
 package it.unisalento.music_virus_project.billing_service.service.implementation;
 
 import it.unisalento.music_virus_project.billing_service.domain.entity.Contribution;
+import it.unisalento.music_virus_project.billing_service.domain.enums.ContributionVisibility;
 import it.unisalento.music_virus_project.billing_service.messaging.publish.ContributionEventPublisher;
 import it.unisalento.music_virus_project.billing_service.repositories.IContributionRepository;
 import it.unisalento.music_virus_project.billing_service.service.ITransactionService;
@@ -42,6 +43,7 @@ class ContributionServiceTest {
         String fanUserId = "fan1";
         String artistId = "artist1";
         BigDecimal amount = new BigDecimal("10.00");
+        ContributionVisibility visibility = ContributionVisibility.PUBLIC;
 
         Contribution saved = new Contribution();
         saved.setContributionId("c1");
@@ -53,7 +55,7 @@ class ContributionServiceTest {
                 .recordContributionPayment(eq(fanUserId), eq(artistId), eq(amount), eq("c1"));
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> service.createContribution(fundraisingId, fanUserId, artistId, amount));
+                () -> service.createContribution(fundraisingId, fanUserId, artistId, amount, visibility));
 
         assertSame(boom, ex);
 
@@ -72,12 +74,13 @@ class ContributionServiceTest {
         String fanUserId = "fan1";
         String artistId = "artist1";
         BigDecimal amount = new BigDecimal("10.00");
+        ContributionVisibility visibility = ContributionVisibility.PUBLIC;
 
         RuntimeException boom = new RuntimeException("save failed");
         when(contributionRepository.save(any(Contribution.class))).thenThrow(boom);
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> service.createContribution(fundraisingId, fanUserId, artistId, amount));
+                () -> service.createContribution(fundraisingId, fanUserId, artistId, amount, visibility));
 
         assertSame(boom, ex);
 
@@ -94,11 +97,11 @@ class ContributionServiceTest {
 
     @Test
     void createContribution_whenRollbackCreditFails_stillAttemptsDelete_andRethrowsOriginal() {
-        // Questo test copre il catch(ignored) sul rollback credit
         String fundraisingId = "fund1";
         String fanUserId = "fan1";
         String artistId = "artist1";
         BigDecimal amount = new BigDecimal("10.00");
+        ContributionVisibility visibility = ContributionVisibility.PUBLIC;
 
         Contribution saved = new Contribution();
         saved.setContributionId("c1");
@@ -111,7 +114,7 @@ class ContributionServiceTest {
         doThrow(new RuntimeException("credit failed")).when(accountBalanceService).creditByUserId(eq(fanUserId), eq(amount));
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> service.createContribution(fundraisingId, fanUserId, artistId, amount));
+                () -> service.createContribution(fundraisingId, fanUserId, artistId, amount, visibility));
 
         assertSame(original, ex);
 

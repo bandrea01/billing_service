@@ -2,6 +2,7 @@ package it.unisalento.music_virus_project.billing_service.service.implementation
 
 import it.unisalento.music_virus_project.billing_service.domain.entity.Contribution;
 import it.unisalento.music_virus_project.billing_service.domain.enums.ContributionStatus;
+import it.unisalento.music_virus_project.billing_service.domain.enums.ContributionVisibility;
 import it.unisalento.music_virus_project.billing_service.dto.contribution.ContributionResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.contribution.TopContributorResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.contribution.TopContributorsListResponseDTO;
@@ -49,16 +50,17 @@ public class ContributionService implements IContributionService {
     }
 
     @Override
-    public ContributionResponseDTO createContribution(String fundraisingId, String fanUserId, String artistId, BigDecimal amount) {
+    public ContributionResponseDTO createContribution(String fundraisingId, String fanUserId, String artistId, BigDecimal amount, ContributionVisibility visibility) {
 
         Contribution contribution = new Contribution();
-        try {
-            contribution.setFundraisingId(fundraisingId);
-            contribution.setUserId(fanUserId);
-            contribution.setArtistId(artistId);
-            contribution.setAmount(amount);
-            contribution.setStatus(ContributionStatus.CAPTURED);
+        contribution.setFundraisingId(fundraisingId);
+        contribution.setUserId(fanUserId);
+        contribution.setArtistId(artistId);
+        contribution.setAmount(amount);
+        contribution.setStatus(ContributionStatus.CAPTURED);
+        contribution.setVisibility(visibility);
 
+        try {
             contribution = contributionRepository.save(contribution);
 
             transactionService.recordContributionPayment(
@@ -79,8 +81,7 @@ public class ContributionService implements IContributionService {
             // Rollback in case of failure
             try {
                 accountBalanceService.creditByUserId(fanUserId, amount);
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
             if (contribution.getContributionId() != null) {
                 try {
                     contributionRepository.deleteById(contribution.getContributionId());

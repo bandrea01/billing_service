@@ -12,6 +12,7 @@ import it.unisalento.music_virus_project.billing_service.repositories.ITicketRep
 import it.unisalento.music_virus_project.billing_service.service.ITicketService;
 import it.unisalento.music_virus_project.billing_service.service.ITransactionService;
 import it.unisalento.music_virus_project.billing_service.service.implementation.AccountService;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -97,11 +98,7 @@ public class EventFundraisingListener {
                     event.getArtistId(),
                     event.getAmount()
             );
-        } catch (Exception e) {
-            throw new RuntimeException("Errore durante il trasferimento dei fondi all'artista: " + e.getMessage());
-        }
-        List<UserContributionAggregation> aggregation;
-        try {
+            List<UserContributionAggregation> aggregation;
             List<Contribution> contributions = contributionRepository.findAllByFundraisingId(event.getEventId());
             aggregation = contributions.stream()
                     .collect(Collectors.groupingBy(
@@ -119,10 +116,6 @@ public class EventFundraisingListener {
                     .values()
                     .stream()
                     .toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Errore durante la creazione dei ticket: " + e.getMessage());
-        }
-        try {
             for (UserContributionAggregation agg : aggregation) {
                 System.out.println("Creazione ticket per userId: " + agg.userId() + " con contribution totale di: " + agg.totalAmount());
                 TicketResponseDTO ticket = ticketService.createTicket(
@@ -133,7 +126,7 @@ public class EventFundraisingListener {
                 System.out.println("Ticket creato con id: " + ticket.getTicketId() + " e codice: " + ticket.getTicketCode());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Errore durante la creazione dei ticket: " + e.getMessage());
+            throw new AmqpRejectAndDontRequeueException("Errore durante la registrazione della transazione di pagamento evento: " + e.getMessage());
         }
     }
 }
