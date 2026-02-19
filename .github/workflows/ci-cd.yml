@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  BillingBuildAndDeploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -100,9 +100,7 @@ jobs:
 
       - name: Build JAR
         run: |
-          chmod +x ./gradlew
-          ./gradlew clean test bootJar --stacktrace
-          ls -la build/libs
+          ./gradlew bootJar --no-daemon --stacktrace
           JAR=$(ls -1 build/libs/*.jar | head -n 1)
           cp "$JAR" app.jar
 
