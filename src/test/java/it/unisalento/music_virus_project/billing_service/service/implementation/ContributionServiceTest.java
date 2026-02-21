@@ -47,7 +47,6 @@ class ContributionServiceTest {
 
         Contribution saved = new Contribution();
         saved.setContributionId("c1");
-
         when(contributionRepository.save(any(Contribution.class))).thenReturn(saved);
 
         RuntimeException boom = new RuntimeException("tx failed");
@@ -59,12 +58,16 @@ class ContributionServiceTest {
 
         assertSame(boom, ex);
 
-        verify(accountBalanceService).debitByUserId(eq(fanUserId), eq(amount));
         verify(contributionRepository).save(any(Contribution.class));
         verify(transactionService).recordContributionPayment(eq(fanUserId), eq(artistId), eq(amount), eq("c1"));
 
+        // comportamento reale: tenta sempre credit nel catch
         verify(accountBalanceService).creditByUserId(eq(fanUserId), eq(amount));
+        // essendo salvata (id != null), tenta delete
         verify(contributionRepository).deleteById(eq("c1"));
+
+        // non dovrebbe pubblicare evento se la transazione fallisce prima
+        verify(contributionEventPublisher, never()).publishContributionAdded(any());
     }
 
     @Test
@@ -83,13 +86,17 @@ class ContributionServiceTest {
 
         assertSame(boom, ex);
 
-        verify(accountBalanceService).debitByUserId(eq(fanUserId), eq(amount));
         verify(contributionRepository).save(any(Contribution.class));
 
+        // comportamento reale: tenta credit nel catch anche se debit non è mai avvenuto
         verify(accountBalanceService).creditByUserId(eq(fanUserId), eq(amount));
 
+        // contributionId è null (non salvata), quindi niente delete
         verify(contributionRepository, never()).deleteById(anyString());
+        // dopo save fallita non deve chiamare transaction
         verify(transactionService, never()).recordContributionPayment(anyString(), anyString(), any(), anyString());
+        // e non deve pubblicare eventi
+        verify(contributionEventPublisher, never()).publishContributionAdded(any());
     }
 
     @Test
@@ -108,13 +115,16 @@ class ContributionServiceTest {
         doThrow(original).when(transactionService)
                 .recordContributionPayment(eq(fanUserId), eq(artistId), eq(amount), eq("c1"));
 
-        doThrow(new RuntimeException("credit failed")).when(accountBalanceService).creditByUserId(eq(fanUserId), eq(amount));
+        doThrow(new RuntimeException("credit failed"))
+                .when(accountBalanceService).creditByUserId(eq(fanUserId), eq(amount));
 
         RuntimeException ex = assertThrows(RuntimeException.class,
                 () -> service.createContribution(fundraisingId, fanUserId, artistId, amount, visibility));
 
+        // la classe rilancia l'eccezione originale del try/catch
         assertSame(original, ex);
 
-        verify(contributionRepository).deleteById("c1");
+        // anche se credit fallisce, deve comunque provare a cancellare
+        verify(contributionRepository).deleteById(eq("c1"));
     }
 }
