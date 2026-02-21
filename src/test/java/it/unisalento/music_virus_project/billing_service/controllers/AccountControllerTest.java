@@ -5,6 +5,7 @@ import it.unisalento.music_virus_project.billing_service.domain.enums.AccountSta
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountResponseDTO;
 import it.unisalento.music_virus_project.billing_service.dto.account.AccountUpdateRequestDTO;
 import it.unisalento.music_virus_project.billing_service.service.IAccountService;
+import it.unisalento.music_virus_project.billing_service.service.implementation.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -31,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AccountController.class)
-@Import(AccountControllerTest.TestSecurityConfig.class) // <-- security permissiva + JwtDecoder finto
+@Import(AccountControllerTest.TestSecurityConfig.class)
 class AccountControllerTest {
 
     @Autowired
@@ -40,25 +42,20 @@ class AccountControllerTest {
     @MockBean
     private IAccountService accountService;
 
-    // -------------------------
-    // TEST SECURITY CONFIG
-    // -------------------------
     @TestConfiguration
     static class TestSecurityConfig {
 
         @Bean
         SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
             return http
-                    .csrf(csrf -> csrf.disable())
+                    .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                    // serve per far funzionare Jwt + @AuthenticationPrincipal Jwt
                     .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                     .build();
         }
 
         @Bean
         JwtDecoder jwtDecoder() {
-            // Non verrà usato se usi .with(jwt()), ma serve per far avviare il contesto
             return token -> Jwt.withTokenValue(token)
                     .header("alg", "none")
                     .claim("userId", "user1")
@@ -69,9 +66,6 @@ class AccountControllerTest {
         }
     }
 
-    // -------------------------
-    // Helpers
-    // -------------------------
     private AccountResponseDTO sampleAccount() {
         AccountResponseDTO dto = new AccountResponseDTO();
         dto.setAccountId("acc1");
@@ -80,10 +74,6 @@ class AccountControllerTest {
         dto.setStatus(AccountStatus.ACTIVE);
         return dto;
     }
-
-    // -------------------------
-    // Tests
-    // -------------------------
 
     @Test
     void getPersonalAccount_returnsOk() throws Exception {
@@ -103,7 +93,7 @@ class AccountControllerTest {
         mockMvc.perform(post("/api/billing/account")
                         .with(jwt().jwt(j -> j
                                 .claim("userId", "user1")
-                                .claim("role", "ARTIST")
+                                .claim("role", "ROLE_ARTIST")
                         )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountId").value("acc1"));

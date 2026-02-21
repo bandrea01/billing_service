@@ -63,7 +63,6 @@ class ContributionServiceTest {
         verify(contributionRepository).save(any(Contribution.class));
         verify(transactionService).recordContributionPayment(eq(fanUserId), eq(artistId), eq(amount), eq("c1"));
 
-        // rollback
         verify(accountBalanceService).creditByUserId(eq(fanUserId), eq(amount));
         verify(contributionRepository).deleteById(eq("c1"));
     }
@@ -87,10 +86,8 @@ class ContributionServiceTest {
         verify(accountBalanceService).debitByUserId(eq(fanUserId), eq(amount));
         verify(contributionRepository).save(any(Contribution.class));
 
-        // rollback: credit attempted
         verify(accountBalanceService).creditByUserId(eq(fanUserId), eq(amount));
 
-        // no delete because nothing saved / no id
         verify(contributionRepository, never()).deleteById(anyString());
         verify(transactionService, never()).recordContributionPayment(anyString(), anyString(), any(), anyString());
     }
@@ -118,7 +115,6 @@ class ContributionServiceTest {
 
         assertSame(original, ex);
 
-        // delete still attempted
         verify(contributionRepository).deleteById("c1");
     }
 }

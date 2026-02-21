@@ -55,8 +55,6 @@ public class AccountService implements IAccountService {
 
     @Override
     public AccountResponseDTO createAccount(String userId, Role role) {
-        System.out.println("Creating account for userId: " + userId + " with role: " + role);
-
         Account account = new Account();
         account.setUserId(userId);
         account.setRole(role);

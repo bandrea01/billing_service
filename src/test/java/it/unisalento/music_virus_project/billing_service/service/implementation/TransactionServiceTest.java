@@ -26,10 +26,6 @@ class TransactionServiceTest {
     @InjectMocks
     private TransactionService transactionService;
 
-    // -------------------------
-    // recordFeePayment
-    // -------------------------
-
     @Test
     void recordFeePayment_whenOk_savesAndReturnsTransaction() {
         when(transactionRepository.save(any(Transaction.class)))
@@ -40,12 +36,11 @@ class TransactionServiceTest {
                 "receiver1",
                 new BigDecimal("10.00"),
                 "feePlan1",
-                TransactionReferenceType.CONTRIBUTION // scegli un valore valido nel tuo enum
+                TransactionReferenceType.CONTRIBUTION
         );
 
         assertNotNull(res);
 
-        // Verifica oggetto salvato
         ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
         verify(transactionRepository).save(captor.capture());
 
@@ -137,10 +132,6 @@ class TransactionServiceTest {
         verify(transactionRepository, never()).save(any());
     }
 
-    // -------------------------
-    // recordContributionPayment
-    // -------------------------
-
     @Test
     void recordContributionPayment_whenOk_savesTransaction() {
         when(transactionRepository.save(any(Transaction.class)))
@@ -182,10 +173,6 @@ class TransactionServiceTest {
 
         verify(transactionRepository, never()).save(any());
     }
-
-    // -------------------------
-    // recordRefund
-    // -------------------------
 
     @Test
     void recordRefund_whenOk_savesTransaction() {

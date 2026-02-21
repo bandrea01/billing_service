@@ -37,15 +37,12 @@ class FeeServiceTest {
     @InjectMocks
     private FeeService feeService;
 
-    // -------------------------
-    // Helpers (ENTITY)
-    // -------------------------
     private static Subscription subscription(String feePlanId, List<Role> roles) {
         Subscription s = new Subscription();
         s.setFeePlanId(feePlanId);
-        s.setIsApplicatedTo(new ArrayList<>(roles)); // entity wants List<Role>
+        s.setIsApplicatedTo(new ArrayList<>(roles));
         s.setAmount(new BigDecimal("9.99"));
-        s.setFeePeriod(FeePeriod.MONTHLY);           // enum
+        s.setFeePeriod(FeePeriod.MONTHLY);
         s.setActiveSince(Instant.parse("2026-01-01T00:00:00Z"));
         return s;
     }
@@ -53,15 +50,11 @@ class FeeServiceTest {
     private static Tax tax(String feePlanId, TaxEnum name) {
         Tax t = new Tax();
         t.setFeePlanId(feePlanId);
-        t.setTaxName(name);                          // TaxEnum (non String)
+        t.setTaxName(name);
         t.setPercentageOnTotal(new BigDecimal("10"));
         t.setActiveSince(Instant.parse("2026-01-01T00:00:00Z"));
         return t;
     }
-
-    // -------------------------
-    // GET LISTS
-    // -------------------------
 
     @Test
     void getSubscriptionList_returnsMappedList() {
@@ -131,14 +124,10 @@ class FeeServiceTest {
         assertTrue(res.getSubscriptions().get(0).getIsApplicatedTo().contains(Role.FAN));
     }
 
-    // -------------------------
-    // CREATE SUBSCRIPTION
-    // -------------------------
-
     @Test
     void createSubscription_whenAlreadyExists_throws() {
         SubscriptionCreateRequestDTO dto = new SubscriptionCreateRequestDTO();
-        dto.setIsApplicatedTo(List.of(Role.ARTIST)); // ✅ DTO wants List<Role>
+        dto.setIsApplicatedTo(List.of(Role.ARTIST));
         dto.setAmount(new BigDecimal("9.99"));
         dto.setFeePeriod(FeePeriod.MONTHLY);
         dto.setActiveSince(Instant.now());
@@ -153,7 +142,7 @@ class FeeServiceTest {
     @Test
     void createSubscription_whenOk_savesAndReturnsDto() {
         SubscriptionCreateRequestDTO dto = new SubscriptionCreateRequestDTO();
-        dto.setIsApplicatedTo(List.of(Role.ARTIST)); // ✅ DTO wants List<Role>
+        dto.setIsApplicatedTo(List.of(Role.ARTIST));
         dto.setAmount(new BigDecimal("9.99"));
         dto.setFeePeriod(FeePeriod.MONTHLY);
         dto.setActiveSince(Instant.parse("2026-02-01T00:00:00Z"));
@@ -177,10 +166,6 @@ class FeeServiceTest {
         assertTrue(res.getIsApplicatedTo().contains(Role.ARTIST));
     }
 
-    // -------------------------
-    // UPDATE / DELETE SUBSCRIPTION
-    // -------------------------
-
     @Test
     void updateSubscription_whenNotFound_throws() {
         when(subscriptionRepository.findSubscriptionByFeePlanId("missing")).thenReturn(null);
@@ -201,7 +186,7 @@ class FeeServiceTest {
         SubscriptionUpdateRequestDTO dto = new SubscriptionUpdateRequestDTO();
         dto.setAmount(new BigDecimal("15.00"));
         dto.setFeePeriod(FeePeriod.MONTHLY);
-        dto.setIsApplicatedTo(List.of(Role.VENUE)); // ✅ DTO wants List<Role>
+        dto.setIsApplicatedTo(List.of(Role.VENUE));
 
         SubscriptionResponseDTO res = feeService.updateSubscription("sub1", dto);
 
@@ -228,16 +213,12 @@ class FeeServiceTest {
         assertEquals("sub1", res.getFeePlanId());
     }
 
-    // -------------------------
-    // CREATE TAX
-    // -------------------------
-
     @Test
     void createTax_whenOk_savesAndReturnsDto() {
         TaxEnum anyTax = TaxEnum.values()[0];
 
         TaxCreateRequestDTO dto = new TaxCreateRequestDTO();
-        dto.setTaxName(anyTax); // ✅ enum
+        dto.setTaxName(anyTax);
         dto.setPercentageOnTotal(new BigDecimal("10"));
         dto.setActiveSince(Instant.parse("2026-02-01T00:00:00Z"));
 
@@ -252,13 +233,9 @@ class FeeServiceTest {
 
         assertNotNull(res);
         assertEquals("taxNEW", res.getFeePlanId());
-        assertEquals(anyTax.toString(), res.getTaxName()); // service fa toString()
+        assertEquals(anyTax.toString(), res.getTaxName());
         assertEquals(new BigDecimal("10"), res.getPercentageOnTotal());
     }
-
-    // -------------------------
-    // UPDATE / DELETE TAX
-    // -------------------------
 
     @Test
     void updateTax_whenNotFound_throws() {

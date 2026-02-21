@@ -35,7 +35,6 @@ public class TransactionController {
         return ResponseEntity.ok(response);
     }
 
-    //Ultime 10 transazioni dell'utente in entrata
     @GetMapping("/last-10/incoming")
     public ResponseEntity<TransactionListResponseDTO> getLast10IncomingTransactions(@AuthenticationPrincipal Jwt principal) {
         String userId = principal.getClaimAsString("userId");

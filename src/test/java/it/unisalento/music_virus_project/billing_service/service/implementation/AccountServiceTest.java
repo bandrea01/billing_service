@@ -146,7 +146,6 @@ class AccountServiceTest {
 
     @Test
     void createAccount_setsDefaults_andSaves() {
-        // ritorno "simulato" dal repo (con id)
         Account saved = account("acc1", "u1", Role.ARTIST, AccountStatus.ACTIVE, BigDecimal.ZERO);
         when(accountRepository.save(any(Account.class))).thenReturn(saved);
 
@@ -269,7 +268,7 @@ class AccountServiceTest {
         AccountResponseDTO dto = service.updateAccount("u1", req);
 
         assertEquals(AccountStatus.CLOSED, dto.getStatus());
-        assertEquals(new BigDecimal("10"), dto.getBalance()); // invariato
+        assertEquals(new BigDecimal("10"), dto.getBalance());
 
         verify(accountRepository).findByUserId("u1");
         verify(accountRepository).save(any(Account.class));
