@@ -41,6 +41,8 @@ class AccountControllerTest {
 
     @MockBean
     private IAccountService accountService;
+    @MockBean
+    private TransactionService transactionService;
 
     @TestConfiguration
     static class TestSecurityConfig {
