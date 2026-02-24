@@ -33,8 +33,6 @@ public class RabbitMqConfiguration {
     private String eventCreationQueueName;
     @Value("${app.rabbitmq.fundraising-refund-queue}")
     private String fundraisingRefundQueueName;
-    @Value ("${app.rabbitmq.contribution-events-queue}")
-    private String contributionEventsQueueName;
 
     @Bean
     public TopicExchange userEventsExchange() {
@@ -64,10 +62,6 @@ public class RabbitMqConfiguration {
     @Bean
     public Queue fundraisingRefundQueue() {
         return QueueBuilder.durable(fundraisingRefundQueueName).build();
-    }
-    @Bean
-    public Queue contributionEventsQueue() {
-        return QueueBuilder.durable(contributionEventsQueueName).build();
     }
 
     // Queue bindings
@@ -101,12 +95,6 @@ public class RabbitMqConfiguration {
         return BindingBuilder.bind(fundraisingRefundQueue)
                 .to(eventFundraisingExchange)
                 .with(EventFundraisingsRoutingKeys.FUNDRAISING_REFUNDED);
-    }
-    @Bean
-    public Binding contributionAddedBinding(Queue contributionEventsQueue, TopicExchange contributionEventsExchange) {
-        return BindingBuilder.bind(contributionEventsQueue)
-                .to(contributionEventsExchange)
-                .with(EventFundraisingsRoutingKeys.CONTRIBUTION_ADDED);
     }
 
     @Bean

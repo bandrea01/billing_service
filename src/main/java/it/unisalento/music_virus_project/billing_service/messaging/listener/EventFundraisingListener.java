@@ -2,7 +2,6 @@ package it.unisalento.music_virus_project.billing_service.messaging.listener;
 
 import it.unisalento.music_virus_project.billing_service.domain.entity.Contribution;
 import it.unisalento.music_virus_project.billing_service.domain.entity.Refund;
-import it.unisalento.music_virus_project.billing_service.domain.entity.Ticket;
 import it.unisalento.music_virus_project.billing_service.dto.ticket.TicketResponseDTO;
 import it.unisalento.music_virus_project.billing_service.messaging.dto.EventCreationDTO;
 import it.unisalento.music_virus_project.billing_service.messaging.dto.FundraisingRefundDTO;
@@ -11,13 +10,11 @@ import it.unisalento.music_virus_project.billing_service.repositories.IRefundRep
 import it.unisalento.music_virus_project.billing_service.repositories.ITicketRepository;
 import it.unisalento.music_virus_project.billing_service.service.ITicketService;
 import it.unisalento.music_virus_project.billing_service.service.ITransactionService;
-import it.unisalento.music_virus_project.billing_service.service.implementation.AccountService;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +44,7 @@ public class EventFundraisingListener {
         this.ticketService = ticketService;
     }
 
-    @RabbitListener(queues = "${app.rabbitmq.contribution-events-queue}")
+    @RabbitListener(queues = "${app.rabbitmq.fundraising-refund-queue}")
     public void handleRefund(FundraisingRefundDTO event) {
         System.out.println("Ricevuto evento di rimborso per fundraisingId: " + event.getFundraisingId() + " e artistId: " + event.getArtistId());
         List<Contribution> contributions = contributionRepository.findAllByFundraisingId(event.getFundraisingId());
