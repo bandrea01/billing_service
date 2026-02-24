@@ -221,13 +221,7 @@ public class TransactionService implements ITransactionService {
             throw new RuntimeException("Errore durante la registrazione della transazione di rimborso");
         }
 
-        // debit sender's account
-        try {
-            accountBalanceService.debitByUserId(senderId, amount);
-        } catch (Exception e) {
-            transactionRepository.deleteById(transaction.getTransactionId());
-            throw new RuntimeException(e.getMessage());
-        }
+        // no debit sender's account -> contribution is accredited on event confirmation
         // credit receiver's account
         try {
             accountBalanceService.creditByUserId(receiverId, amount);
