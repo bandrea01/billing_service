@@ -8,6 +8,7 @@ import java.time.Instant;
 public class TicketResponseDTO {
     private String ticketId;
     private String eventId;
+    private String fundraisingId;
     private String ticketCode;
     private BigDecimal contributionAmount;
     private TicketStatus status;
@@ -49,6 +50,14 @@ public class TicketResponseDTO {
 
     public void setEventId(String eventId) {
         this.eventId = eventId;
+    }
+
+    public String getFundraisingId() {
+        return fundraisingId;
+    }
+
+    public void setFundraisingId(String fundraisingId) {
+        this.fundraisingId = fundraisingId;
     }
 
     public BigDecimal getContributionAmount() {

@@ -78,10 +78,6 @@ public class ContributionService implements IContributionService {
 
             return mapToDTO(contribution);
         } catch (Exception e) {
-            // Rollback in case of failure
-            try {
-                accountBalanceService.creditByUserId(fanUserId, amount);
-            } catch (Exception ignored) {}
             if (contribution.getContributionId() != null) {
                 try {
                     contributionRepository.deleteById(contribution.getContributionId());

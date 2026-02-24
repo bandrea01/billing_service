@@ -95,8 +95,10 @@ public class EventFundraisingListener {
                     event.getArtistId(),
                     event.getAmount()
             );
+            System.out.println("Transazione di pagamento registrata per eventId: " + event.getEventId() + " e artistId: " + event.getArtistId());
             List<UserContributionAggregation> aggregation;
-            List<Contribution> contributions = contributionRepository.findAllByFundraisingId(event.getEventId());
+            List<Contribution> contributions = contributionRepository.findAllByFundraisingId(event.getFundraisingId());
+            System.out.println("Contributions trovate per fundraisingId " + event.getFundraisingId() + ": " + contributions.size());
             aggregation = contributions.stream()
                     .collect(Collectors.groupingBy(
                             Contribution::getUserId,
@@ -113,11 +115,13 @@ public class EventFundraisingListener {
                     .values()
                     .stream()
                     .toList();
+            System.out.println("Aggregazione completata, numero di utenti da processare: " + aggregation.size());
             for (UserContributionAggregation agg : aggregation) {
                 System.out.println("Creazione ticket per userId: " + agg.userId() + " con contribution totale di: " + agg.totalAmount());
                 TicketResponseDTO ticket = ticketService.createTicket(
                         agg.userId(),
                         event.getEventId(),
+                        event.getFundraisingId(),
                         agg.totalAmount()
                 );
                 System.out.println("Ticket creato con id: " + ticket.getTicketId() + " e codice: " + ticket.getTicketCode());

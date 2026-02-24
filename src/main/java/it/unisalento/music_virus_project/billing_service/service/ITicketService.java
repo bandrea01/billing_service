@@ -8,5 +8,5 @@ import java.math.BigDecimal;
 public interface ITicketService {
     TicketListResponseDTO getAllTicketsByUserId(String userId);
     TicketResponseDTO getTicketById(String ticketId);
-    TicketResponseDTO createTicket(String userId, String eventId, BigDecimal contributionAmount);
+    TicketResponseDTO createTicket(String userId, String eventId, String fundraisingId, BigDecimal contributionAmount);
 }

@@ -34,7 +34,7 @@ public class TicketController {
     @PostMapping
     public ResponseEntity<TicketResponseDTO> createTicket(@AuthenticationPrincipal Jwt principal, @RequestBody TicketCreationRequestDTO request) {
         String userId = principal.getClaimAsString("userId");
-        var response = ticketService.createTicket(userId, request.getEventId(), request.getContributionAmount());
+        var response = ticketService.createTicket(userId, request.getEventId(), request.getFundraisingId(), request.getContributionAmount());
         return ResponseEntity.ok(response);
     }
 }

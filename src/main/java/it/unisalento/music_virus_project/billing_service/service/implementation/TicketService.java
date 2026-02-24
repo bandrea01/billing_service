@@ -48,7 +48,7 @@ public class TicketService implements ITicketService {
     }
 
     @Override
-    public TicketResponseDTO createTicket(String userId, String eventId, BigDecimal contributionAmount) {
+    public TicketResponseDTO createTicket(String userId, String eventId, String fundraisingId, BigDecimal contributionAmount) {
 
         String ticketId = UUID.randomUUID().toString();
         String nonce = UUID.randomUUID().toString();

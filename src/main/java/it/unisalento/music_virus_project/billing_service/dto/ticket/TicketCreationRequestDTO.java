@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class TicketCreationRequestDTO {
     private String eventId;
+    private String fundraisingId;
     private BigDecimal contributionAmount;
 
     public String getEventId() {
@@ -12,6 +13,14 @@ public class TicketCreationRequestDTO {
 
     public void setEventId(String eventId) {
         this.eventId = eventId;
+    }
+
+    public String getFundraisingId() {
+        return fundraisingId;
+    }
+
+    public void setFundraisingId(String fundraisingId) {
+        this.fundraisingId = fundraisingId;
     }
 
     public BigDecimal getContributionAmount() {
