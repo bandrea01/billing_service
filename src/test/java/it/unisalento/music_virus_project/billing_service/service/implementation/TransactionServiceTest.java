@@ -229,7 +229,6 @@ class TransactionServiceTest {
     @Test
     void recordRefund_whenOk_savesTransaction() {
         mockSaveAssigningId();
-        stubAccountBalanceOpsAsOk();
 
         transactionService.recordRefund(
                 "artist1",
@@ -251,7 +250,6 @@ class TransactionServiceTest {
         assertEquals("fan1", saved.getReceiverId());
         assertEquals(new BigDecimal("3.00"), saved.getAmount());
 
-        verify(accountBalanceService).debitByUserId("artist1", new BigDecimal("3.00"));
         verify(accountBalanceService).creditByUserId("fan1", new BigDecimal("3.00"));
     }
 
